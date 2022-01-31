@@ -13,7 +13,7 @@ from numpy import sqrt
 carbon = pd.read_csv('assemblies_data.csv') 
 
 # Selects 1% of the data
-carbon = carbon.sample(frac=0.01, random_state=0)
+carbon = carbon.sample(frac=0.1, random_state=0)
 
 print(f'Number of points: {len(carbon)}')
 carbon.head()

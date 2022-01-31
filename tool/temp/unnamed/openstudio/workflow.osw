@@ -1,24 +1,24 @@
 {
-    "weather_file": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\!tool\\data\\USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw", 
+    "weather_file": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\tool\\data\\USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw", 
     "measure_paths": [
         "C:\\Users\\papep\\ladybug_tools\\resources\\measures\\honeybee_openstudio_gem\\lib\\measures"
     ], 
     "steps": [
         {
             "arguments": {
-                "model_json": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\!tool\\temp\\unnamed\\openstudio\\unnamed.hbjson", 
-                "schedule_csv_dir": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\!tool\\temp\\unnamed\\openstudio\\schedules"
+                "model_json": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\tool\\temp\\unnamed\\openstudio\\unnamed.hbjson", 
+                "schedule_csv_dir": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\tool\\temp\\unnamed\\openstudio\\schedules"
             }, 
             "measure_dir_name": "from_honeybee_model"
         }, 
         {
             "arguments": {
-                "simulation_parameter_json": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\!tool\\temp\\unnamed\\openstudio\\simulation_parameter.json"
+                "simulation_parameter_json": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\tool\\temp\\unnamed\\openstudio\\simulation_parameter.json"
             }, 
             "measure_dir_name": "from_honeybee_simulation_parameter"
         }
     ], 
     "file_paths": [
-        "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\!tool\\temp\\unnamed\\openstudio\\schedules"
+        "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\tool\\temp\\unnamed\\openstudio\\schedules"
     ]
 }
