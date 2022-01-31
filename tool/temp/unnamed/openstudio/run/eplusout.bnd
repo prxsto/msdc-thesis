@@ -1,0 +1,242 @@
+Program Version,EnergyPlus, Version 9.6.0-4b123cf80f, YMD=2022.01.26 10:19
+! This file shows details about the branches, nodes, and other
+! elements of the flow connections.
+! This file is intended for use in "debugging" potential problems
+! that may also be detected by the program, but may be more easily
+! identified by "eye".
+! This file is also intended to support software which draws a
+! schematic diagram of the HVAC system.
+! ===============================================================
+! #Nodes,<Number of Unique Nodes>
+ #Nodes,25
+! <Node>,<NodeNumber>,<Node Name>,<Node Fluid Type>,<# Times Node Referenced After Definition>
+ Node,1,NODE 6,Air,2
+ Node,2,NODE 5,Air,2
+ Node,3,NODE 4,Air,2
+ Node,4,NODE 3,Air,2
+ Node,5,NODE 7,Water,2
+ Node,6,NODE 13,Water,1
+ Node,7,NODE 9,Water,1
+ Node,8,NODE 14,Water,1
+ Node,9,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE NODE,Water,1
+ Node,10,NODE 8,Water,4
+ Node,11,NODE 10,Water,2
+ Node,12,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE,Water,1
+ Node,13,NODE 12,Water,1
+ Node,14,NODE 15,Water,1
+ Node,15,NODE 16,Water,1
+ Node,16,NODE 17,Water,1
+ Node,17,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE INLET NODE,Water,1
+ Node,18,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE OUTLET NODE,Water,1
+ Node,19,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,Water,1
+ Node,20,NODE 11,Water,2
+ Node,21,NODE 2,Air,0
+ Node,22,NODE 1,Air,0
+ Node,23,MODEL OUTDOOR AIR NODE,Air,0
+ Node,24,ZONE1_1_8B60EA5C IDEAL LOADS AIR SYSTEM OUTDOOR AIR INLET NODE,Air,1
+ Node,25,ZONE2_2_BD801F21 IDEAL LOADS AIR SYSTEM OUTDOOR AIR INLET NODE,Air,1
+! ===============================================================
+! Suspicious nodes have 0 references.  It is normal for some nodes, however.
+! Listing nodes with 0 references (culled from previous list):
+! <Suspicious Node>,<NodeNumber>,<Node Name>,<Node Fluid Type>,<# Times Node Referenced After Definition>
+ Suspicious Node,21,NODE 2,Air,0
+ Suspicious Node,22,NODE 1,Air,0
+ Suspicious Node,23,MODEL OUTDOOR AIR NODE,Air,0
+! ===============================================================
+! <#Branch Lists>,<Number of Branch Lists>
+ #Branch Lists,2
+! <Branch List>,<Branch List Count>,<Branch List Name>,<Loop Name>,<Loop Type>,<Number of Branches>
+! <Branch>,<Branch Count>,<Branch Name>,<Loop Name>,<Loop Type>,<Branch Inlet Node Name>,<Branch Outlet Node Name>
+ Branch List,1,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY BRANCHES,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Supply,3
+   Branch,1,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY INLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Supply,NODE 7,NODE 13
+   Branch,2,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY BRANCH 1,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Supply,NODE 9,NODE 14
+   Branch,3,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Supply,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE NODE,NODE 8
+ Branch List,2,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCHES,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Demand,5
+   Branch,1,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Demand,NODE 10,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE
+   Branch,2,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 1,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Demand,NODE 12,NODE 15
+   Branch,3,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 2,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Demand,NODE 16,NODE 17
+   Branch,4,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Demand,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE INLET NODE,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE OUTLET NODE
+   Branch,5,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Plant Demand,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,NODE 11
+! ===============================================================
+! <#Supply Air Paths>,<Number of Supply Air Paths>
+ #Supply Air Paths,0
+! <Supply Air Path>,<Supply Air Path Count>,<Supply Air Path Name>,<AirLoopHVAC Name>
+! <#Components on Supply Air Path>,<Number of Components>
+! <Supply Air Path Component>,<Component Count>,<Component Type>,<Component Name>,<AirLoopHVAC Name>
+! <#Outlet Nodes on Supply Air Path Component>,<Number of Nodes>
+! <Supply Air Path Component Nodes>,<Node Count>,<Component Type>,<Component Name>,<Inlet Node Name>,<Outlet Node Name>,<AirLoopHVAC Name>
+! ===============================================================
+! <#Return Air Paths>,<Number of Return Air Paths>
+ #Return Air Paths,0
+! <Return Air Path>,<Return Air Path Count>,<Return Air Path Name>,<AirLoopHVAC Name>
+! <#Components on Return Air Path>,<Number of Components>
+! <Return Air Path Component>,<Component Count>,<Component Type>,<Component Name>,<AirLoopHVAC Name>
+! <#Inlet Nodes on Return Air Path Component>,<Number of Nodes>
+! <Return Air Path Component Nodes>,<Node Count>,<Component Type>,<Component Name>,<Inlet Node Name>,<Outlet Node Name>,<AirLoopHVAC Name>
+! ===============================================================
+! #Outdoor Air Nodes,<Number of Outdoor Air Nodes>
+ #Outdoor Air Nodes,3
+! <Outdoor Air Node>,<NodeNumber>,<Node Name>
+ Outdoor Air Node,23,MODEL OUTDOOR AIR NODE
+ Outdoor Air Node,24,ZONE1_1_8B60EA5C IDEAL LOADS AIR SYSTEM OUTDOOR AIR INLET NODE
+ Outdoor Air Node,25,ZONE2_2_BD801F21 IDEAL LOADS AIR SYSTEM OUTDOOR AIR INLET NODE
+! ===============================================================
+! <#Component Sets>,<Number of Component Sets>
+ #Component Sets,8
+! <Component Set>,<Component Set Count>,<Parent Object Type>,<Parent Object Name>,<Component Type>,<Component Name>,<Inlet Node ID>,<Outlet Node ID>,<Description>
+ Component Set,1,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY INLET BRANCH,PUMP:CONSTANTSPEED,SHW PUMP1,NODE 7,NODE 13,Water Nodes
+ Component Set,2,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY BRANCH 1,DISTRICTHEATING,SERVICE HOT WATER DISTRICT HEAT,NODE 9,NODE 14,Hot Water Nodes
+ Component Set,3,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET BRANCH,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE NODE,NODE 8,Pipe Nodes
+ Component Set,4,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET BRANCH,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE,NODE 10,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE,Pipe Nodes
+ Component Set,5,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 1,WATERUSE:CONNECTIONS,WATER USE CONNECTIONS 1,NODE 12,NODE 15,DHW Nodes
+ Component Set,6,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 2,WATERUSE:CONNECTIONS,WATER USE CONNECTIONS 2,NODE 16,NODE 17,DHW Nodes
+ Component Set,7,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS BRANCH,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE INLET NODE,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE OUTLET NODE,Pipe Nodes
+ Component Set,8,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET BRANCH,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,NODE 11,Pipe Nodes
+! ===============================================================
+! <# Plant Loops>,<Number of Plant Loops>
+ #Plant Loops,1
+! <Plant Loop>,<Plant Loop Name>,<Loop Type>,<Inlet Node Name>,<Outlet Node Name>,<Branch List>,<Connector List>
+! <Plant Loop Connector>,<Connector Type>,<Connector Name>,<Loop Name>,<Loop Type>,<Number of Inlets/Outlets>
+! <Plant Loop Connector Branches>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Branch>,<Outlet Branch>,<Loop Name>,<Loop Type>
+! <Plant Loop Connector Nodes>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Node>,<Outlet Node>,<Loop Name>,<Loop Type>
+! <Plant Loop Supply Connection>,<Plant Loop Name>,<Supply Side Outlet Node Name>,<Demand Side Inlet Node Name>
+! <Plant Loop Return Connection>,<Plant Loop Name>,<Demand Side Outlet Node Name>,<Supply Side Inlet Node Name>
+ Plant Loop,SHW LOOP DEFAULT_DISTRICT_SHW,Demand,NODE 10,NODE 11,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCHES,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND CONNECTOR LIST
+   Plant Loop Connector,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW,Demand,3
+     Plant Loop Connector Branches,1,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 1,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Nodes,   1,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE,NODE 12,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Branches,2,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 2,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Nodes,   2,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE,NODE 16,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Branches,3,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Nodes,   3,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE INLET NODE,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+   Plant Loop Connector,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,SHW LOOP DEFAULT_DISTRICT_SHW,Demand,3
+     Plant Loop Connector Branches,1,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 1,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Nodes,   1,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,NODE 15,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Branches,2,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 2,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Nodes,   2,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,NODE 17,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Branches,3,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+     Plant Loop Connector Nodes,   3,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE OUTLET NODE,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,SHW LOOP DEFAULT_DISTRICT_SHW,Demand
+ Plant Loop,SHW LOOP DEFAULT_DISTRICT_SHW,Supply,NODE 7,NODE 8,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY BRANCHES,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY CONNECTOR LIST
+   Plant Loop Connector,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW,Supply,1
+     Plant Loop Connector Branches,1,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY INLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY BRANCH 1,SHW LOOP DEFAULT_DISTRICT_SHW,Supply
+     Plant Loop Connector Nodes,   1,Splitter,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY SPLITTER,NODE 13,NODE 9,SHW LOOP DEFAULT_DISTRICT_SHW,Supply
+   Plant Loop Connector,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY MIXER,SHW LOOP DEFAULT_DISTRICT_SHW,Supply,1
+     Plant Loop Connector Branches,1,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY MIXER,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY BRANCH 1,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW,Supply
+     Plant Loop Connector Nodes,   1,Mixer,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY MIXER,NODE 14,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE NODE,SHW LOOP DEFAULT_DISTRICT_SHW,Supply
+ Plant Loop Supply Connection,SHW LOOP DEFAULT_DISTRICT_SHW,NODE 8,NODE 10
+ Plant Loop Return Connection,SHW LOOP DEFAULT_DISTRICT_SHW,NODE 11,NODE 7
+! ===============================================================
+! <# Condenser Loops>,<Number of Condenser Loops>
+ #Condenser Loops,0
+! <Condenser Loop>,<Condenser Loop Name>,<Loop Type>,<Inlet Node Name>,<Outlet Node Name>,<Branch List>,<Connector List>
+! <Condenser Loop Connector>,<Connector Type>,<Connector Name>,<Loop Name>,<Loop Type>,<Number of Inlets/Outlets>
+! <Condenser Loop Connector Branches>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Branch>,<Outlet Branch>,<Loop Name>,<Loop Type>
+! <Condenser Loop Connector Nodes>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Node>,<Outlet Node>,<Loop Name>,<Loop Type>
+! <Condenser Loop Supply Connection>,<Condenser Loop Name>,<Supply Side Outlet Node Name>,<Demand Side Inlet Node Name>
+! <Condenser Loop Return Connection>,<Condenser Loop Name>,<Demand Side Outlet Node Name>,<Supply Side Inlet Node Name>
+! ===============================================================
+! <# Controlled Zones>,<Number of Controlled Zones>
+ #Controlled Zones,2
+! <Controlled Zone>,<Controlled Zone Name>,<Equip List Name>,<Control List Name>,<Zone Node Name>,<# Inlet Nodes>,<# Exhaust Nodes>,<# Return Nodes>
+! <Controlled Zone Inlet>,<Inlet Node Count>,<Controlled Zone Name>,<Supply Air Inlet Node Name>,<SD Sys:Cooling/Heating [DD:Cooling] Inlet Node Name>,<DD Sys:Heating Inlet Node Name>
+! <Controlled Zone Exhaust>,<Exhaust Node Count>,<Controlled Zone Name>,<Exhaust Air Node Name>
+ Controlled Zone,ZONE1_1_8B60EA5C,ZONE1_1_8B60EA5C EQUIPMENT LIST,,NODE 2,1,1,0
+   Controlled Zone Inlet,1,ZONE1_1_8B60EA5C,NODE 6,Undefined,N/A
+   Controlled Zone Exhaust,1,ZONE1_1_8B60EA5C,NODE 5
+ Controlled Zone,ZONE2_2_BD801F21,ZONE2_2_BD801F21 EQUIPMENT LIST,,NODE 1,1,1,0
+   Controlled Zone Inlet,1,ZONE2_2_BD801F21,NODE 4,Undefined,N/A
+   Controlled Zone Exhaust,1,ZONE2_2_BD801F21,NODE 3
+! ===============================================================
+! <#Zone Equipment Lists>,<Number of Zone Equipment Lists>
+ #Zone Equipment Lists,2
+! <Zone Equipment List>,<Zone Equipment List Count>,<Zone Equipment List Name>,<Zone Name>,<Number of Components>
+! <Zone Equipment Component>,<Component Count>,<Component Type>,<Component Name>,<Zone Name>,<Heating Priority>,<Cooling Priority>
+ Zone Equipment List,1,ZONE1_1_8B60EA5C EQUIPMENT LIST,ZONE1_1_8B60EA5C,1
+   Zone Equipment Component,1,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE1_1_8B60EA5C IDEAL LOADS AIR SYSTEM,ZONE1_1_8B60EA5C,1,1
+ Zone Equipment List,2,ZONE2_2_BD801F21 EQUIPMENT LIST,ZONE2_2_BD801F21,1
+   Zone Equipment Component,1,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE2_2_BD801F21 IDEAL LOADS AIR SYSTEM,ZONE2_2_BD801F21,1,1
+! ===============================================================
+! <#AirLoopHVACs>,<Number of AirLoopHVACs>
+ #AirLoopHVACs,0
+! <AirLoopHVAC>,<Air Loop Name>,<# Return Nodes>,<# Supply Nodes>,<# Zones Cooled>,<# Zones Heated>,<Outdoor Air Used>
+! <AirLoop Return Connections>,<Connection Count>,<AirLoopHVAC Name>,<Zn Eqp Return Node #>,<Zn Eqp Return Node Name>,<AirLoop Return Node #>,<Air Loop Return Node Name>
+! <AirLoop Supply Connections>,<Connection Count>,<AirLoopHVAC Name>,<Zn Eqp Supply Node #>,<Zn Eqp Supply Node Name>,<AirLoop Supply Node #>,<Air Loop Supply Node Name>
+! <Cooled Zone Info>,<Cooled Zone Count>,<Cooled Zone Name>,<Cooled Zone Inlet Node #>,<Cooled Zone Inlet Node Name>,<AirLoopHVAC Name>
+! <Heated Zone Info>,<Heated Zone Count>,<Heated Zone Name>,<Heated Zone Inlet Node #>,<Heated Zone Inlet Node Name>,<AirLoopHVAC Name>
+! <Outdoor Air Connections>,<OA Inlet Node #>,<OA Return Air Inlet Node Name>,<OA Outlet Node #>,<OA Mixed Air Outlet Node Name>,<AirLoopHVAC Name>
+! <AirLoopHVAC Connector>,<Connector Type>,<Connector Name>,<Loop Name>,<Loop Type>,<Number of Inlets/Outlets>
+! <AirLoopHVAC Connector Branches>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Branch>,<Outlet Branch>,<Loop Name>,<Loop Type>
+! <AirLoopHVAC Connector Nodes>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Node>,<Outlet Node>,<Loop Name>,<Loop Type>
+! ===============================================================
+! <#Parent Node Connections>,<Number of Parent Node Connections>
+ #Parent Node Connections,21
+! <Parent Node Connection>,<Node Name>,<Node ObjectType>,<Node ObjectName>,<Node ConnectionType>,<Node FluidStream>
+ Parent Node Connection,NODE 7,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY INLET BRANCH,Inlet,1
+ Parent Node Connection,NODE 13,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY INLET BRANCH,Outlet,1
+ Parent Node Connection,NODE 9,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY BRANCH 1,Inlet,1
+ Parent Node Connection,NODE 14,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY BRANCH 1,Outlet,1
+ Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE NODE,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET BRANCH,Inlet,1
+ Parent Node Connection,NODE 8,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET BRANCH,Outlet,1
+ Parent Node Connection,NODE 10,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET BRANCH,Inlet,1
+ Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET BRANCH,Outlet,1
+ Parent Node Connection,NODE 12,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 1,Inlet,1
+ Parent Node Connection,NODE 15,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 1,Outlet,1
+ Parent Node Connection,NODE 16,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 2,Inlet,1
+ Parent Node Connection,NODE 17,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BRANCH 2,Outlet,1
+ Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE INLET NODE,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS BRANCH,Inlet,1
+ Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE OUTLET NODE,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS BRANCH,Outlet,1
+ Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET BRANCH,Inlet,1
+ Parent Node Connection,NODE 11,BRANCH,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET BRANCH,Outlet,1
+ Parent Node Connection,NODE 7,PLANTLOOP,SHW LOOP DEFAULT_DISTRICT_SHW,Inlet,1
+ Parent Node Connection,NODE 8,PLANTLOOP,SHW LOOP DEFAULT_DISTRICT_SHW,Outlet,1
+ Parent Node Connection,NODE 10,PLANTLOOP,SHW LOOP DEFAULT_DISTRICT_SHW,Inlet,1
+ Parent Node Connection,NODE 11,PLANTLOOP,SHW LOOP DEFAULT_DISTRICT_SHW,Outlet,1
+ Parent Node Connection,NODE 8,PLANTLOOP,SHW LOOP DEFAULT_DISTRICT_SHW,Sensor,1
+! ===============================================================
+! <#Non-Parent Node Connections>,<Number of Non-Parent Node Connections>
+ #Non-Parent Node Connections,44
+! <Non-Parent Node Connection>,<Node Name>,<Node ObjectType>,<Node ObjectName>,<Node ConnectionType>,<Node FluidStream>
+ Non-Parent Node Connection,NODE 2,ZONEHVAC:EQUIPMENTCONNECTIONS,ZONE1_1_8B60EA5C,ZoneNode,1
+ Non-Parent Node Connection,NODE 6,ZONEHVAC:EQUIPMENTCONNECTIONS,ZONE1_1_8B60EA5C,ZoneInlet,1
+ Non-Parent Node Connection,NODE 5,ZONEHVAC:EQUIPMENTCONNECTIONS,ZONE1_1_8B60EA5C,ZoneExhaust,1
+ Non-Parent Node Connection,NODE 1,ZONEHVAC:EQUIPMENTCONNECTIONS,ZONE2_2_BD801F21,ZoneNode,1
+ Non-Parent Node Connection,NODE 4,ZONEHVAC:EQUIPMENTCONNECTIONS,ZONE2_2_BD801F21,ZoneInlet,1
+ Non-Parent Node Connection,NODE 3,ZONEHVAC:EQUIPMENTCONNECTIONS,ZONE2_2_BD801F21,ZoneExhaust,1
+ Non-Parent Node Connection,MODEL OUTDOOR AIR NODE,OUTDOORAIR:NODE,OutdoorAir:Node,OutdoorAir,1
+ Non-Parent Node Connection,NODE 8,SETPOINTMANAGER:SCHEDULED,SETPOINT MANAGER SCHEDULED 1,Setpoint,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE NODE,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE,Inlet,1
+ Non-Parent Node Connection,NODE 8,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE,Outlet,1
+ Non-Parent Node Connection,NODE 10,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE,Inlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE,Outlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE INLET NODE,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE,Inlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE OUTLET NODE,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE,Outlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE,Inlet,1
+ Non-Parent Node Connection,NODE 11,PIPE:ADIABATIC,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE,Outlet,1
+ Non-Parent Node Connection,NODE 12,WATERUSE:CONNECTIONS,WATER USE CONNECTIONS 1,Inlet,1
+ Non-Parent Node Connection,NODE 15,WATERUSE:CONNECTIONS,WATER USE CONNECTIONS 1,Outlet,1
+ Non-Parent Node Connection,NODE 16,WATERUSE:CONNECTIONS,WATER USE CONNECTIONS 2,Inlet,1
+ Non-Parent Node Connection,NODE 17,WATERUSE:CONNECTIONS,WATER USE CONNECTIONS 2,Outlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND INLET PIPE NODE,CONNECTOR:SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,Inlet,1
+ Non-Parent Node Connection,NODE 12,CONNECTOR:SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,Outlet,1
+ Non-Parent Node Connection,NODE 16,CONNECTOR:SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,Outlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE INLET NODE,CONNECTOR:SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND SPLITTER,Outlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND OUTLET PIPE NODE,CONNECTOR:MIXER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,Outlet,1
+ Non-Parent Node Connection,NODE 15,CONNECTOR:MIXER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,Inlet,1
+ Non-Parent Node Connection,NODE 17,CONNECTOR:MIXER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,Inlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND BYPASS PIPE OUTLET NODE,CONNECTOR:MIXER,SHW LOOP DEFAULT_DISTRICT_SHW DEMAND MIXER,Inlet,1
+ Non-Parent Node Connection,NODE 9,DISTRICTHEATING,SERVICE HOT WATER DISTRICT HEAT,Inlet,1
+ Non-Parent Node Connection,NODE 14,DISTRICTHEATING,SERVICE HOT WATER DISTRICT HEAT,Outlet,1
+ Non-Parent Node Connection,NODE 13,CONNECTOR:SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY SPLITTER,Inlet,1
+ Non-Parent Node Connection,NODE 9,CONNECTOR:SPLITTER,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY SPLITTER,Outlet,1
+ Non-Parent Node Connection,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY OUTLET PIPE NODE,CONNECTOR:MIXER,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY MIXER,Outlet,1
+ Non-Parent Node Connection,NODE 14,CONNECTOR:MIXER,SHW LOOP DEFAULT_DISTRICT_SHW SUPPLY MIXER,Inlet,1
+ Non-Parent Node Connection,NODE 6,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE1_1_8B60EA5C IDEAL LOADS AIR SYSTEM,Outlet,1
+ Non-Parent Node Connection,NODE 5,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE1_1_8B60EA5C IDEAL LOADS AIR SYSTEM,Inlet,1
+ Non-Parent Node Connection,ZONE1_1_8B60EA5C IDEAL LOADS AIR SYSTEM OUTDOOR AIR INLET NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE1_1_8B60EA5C IDEAL LOADS AIR SYSTEM,Outlet,1
+ Non-Parent Node Connection,ZONE1_1_8B60EA5C IDEAL LOADS AIR SYSTEM OUTDOOR AIR INLET NODE,OUTDOORAIR:NODE,OutdoorAir:Node,OutdoorAir,2
+ Non-Parent Node Connection,NODE 4,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE2_2_BD801F21 IDEAL LOADS AIR SYSTEM,Outlet,1
+ Non-Parent Node Connection,NODE 3,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE2_2_BD801F21 IDEAL LOADS AIR SYSTEM,Inlet,1
+ Non-Parent Node Connection,ZONE2_2_BD801F21 IDEAL LOADS AIR SYSTEM OUTDOOR AIR INLET NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE2_2_BD801F21 IDEAL LOADS AIR SYSTEM,Outlet,1
+ Non-Parent Node Connection,ZONE2_2_BD801F21 IDEAL LOADS AIR SYSTEM OUTDOOR AIR INLET NODE,OUTDOORAIR:NODE,OutdoorAir:Node,OutdoorAir,3
+ Non-Parent Node Connection,NODE 7,PUMP:CONSTANTSPEED,SHW PUMP1,Inlet,1
+ Non-Parent Node Connection,NODE 13,PUMP:CONSTANTSPEED,SHW PUMP1,Outlet,1

@@ -1,0 +1,34 @@
+1/18/22
+run two sims 40% on one facade (on each direction) vs 40% on all facades. keep glazing area equivalent
+test adiabatic vs nonadiabatic roof impact (1 vs 2 stories)
+test 4 different sizes/volumes to see impact of non-adiabtic surface-volume ratios
+test impact of shading on energy
+include these impacts in thesis, document as i go
+
+***** to potentially delete each animation screenshot as it runs:
+import shutil
+from shutil import rmtree
+takes folder path you want to remove
+
+rmtree 
+
+1/25/22
+2 story empty box is more accurate simulating a loft
+can be more accurate by simulating empty 2 story box with 3/4 floor being zone 2, zone 1 being bottom floor + 1/4 of 2nd story
+2 story, 1 zone box not accurate for either 2 story or 2 story loft because all of the loads applied to calculation by energyplus are square footage-dependent- need sqft to be 99% accurate
+
+
+***** create ADU class, feed all csv data into as properties, add data as i go inside of clusters with all of the heavy lifitng sections so that the ghpython component responsible for the create_csv ADU method only runs for sure after all relevant data is collected and stored.
+
+
+class ADU
+
+instance adu
+
+adu.eui = eui, for example at the eui adding step
+
+can also create method which calculates the kgCO2e from eui before running 'adu.carbon = carbon'
+
+last component in definition is ghpython script running adu.create_csv() or create_csv(adu) (idk which is correct syntax), after all data is internalized to properties.
+
+***** remove num_adu option while running initial set, implement later!
