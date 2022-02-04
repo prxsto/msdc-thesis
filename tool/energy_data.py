@@ -1,3 +1,5 @@
+import os
+import glob
 from sklearn.linear_model import Lasso
 import pandas as pd
 import numpy as np
@@ -9,29 +11,34 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from math import sqrt
 from numpy import sqrt
+import studio2021
 
-carbon = pd.read_csv('assemblies_data.csv') 
+path = os.path.dirname(__file__)
+print(path)
+filename = ('1k_results.csv')
+filepath = os.path.join("/msdc-thesis/results", filename)
+dadus = pd.read_csv(filepath)
 
-# Selects 1% of the data
-carbon = carbon.sample(frac=0.1, random_state=0)
+# Selects % of the data
+dadus = dadus.sample(frac=0.1, random_state=0)
 
-print(f'Number of points: {len(carbon)}')
-carbon.head()
+print(f'Number of points: {len(dadus)}')
+dadus.head()
 
 # All of the features of interest
 selected_inputs = [
-    'bedrooms', 
+    'bedrooms',
     'bathrooms',
-    'sqft_living', 
-    'sqft_lot', 
-    'floors', 
-    'waterfront', 
-    'view', 
-    'condition', 
+    'sqft_living',
+    'sqft_lot',
+    'floors',
+    'waterfront',
+    'view',
+    'condition',
     'grade',
     'sqft_above',
     'sqft_basement',
-    'yr_built', 
+    'yr_built',
     'yr_renovated'
 ]
 
@@ -40,47 +47,47 @@ all_features = []
 for data_input in selected_inputs:
     square_feat = data_input + '_square'
     sqrt_feat = data_input + '_sqrt'
-    
+
     # TODO compute the square and square root as two new features
-    sales[square_feat] = sales[data_input]**2
-    sales[sqrt_feat] = np.sqrt(sales[data_input])
+    dadus[square_feat] = dadus[data_input]**2
+    dadus[sqrt_feat] = np.sqrt(dadus[data_input])
     all_features.extend([data_input, square_feat, sqrt_feat])
 
 
-# Split the data into features and price
-price = sales['price']
-sales = sales[all_features]
+# Split the data into features and energy
+energy = dadus['energy']
+dadus = dadus[all_features]
 
-sales.head()
+dadus.head()
 
 # split data
-train_and_validation_sales, test_sales, train_and_validation_price, test_price = \
-    train_test_split(sales, price, test_size=.20, random_state=6)
-train_sales, validation_sales, train_price, validation_price = \
-    train_test_split(train_and_validation_sales,
-                     train_and_validation_price, test_size=.125, random_state=6)
+train_and_validation_dadus, test_dadus, train_and_validation_energy, test_energy = \
+    train_test_split(dadus, energy, test_size=.20, random_state=6)
+train_dadus, validation_dadus, train_energy, validation_energy = \
+    train_test_split(train_and_validation_dadus,
+                     train_and_validation_energy, test_size=.125, random_state=6)
 
 # standardization
-train_scaler = StandardScaler().fit(train_sales)
+train_scaler = StandardScaler().fit(train_dadus)
 
-train_sales = train_scaler.transform(train_sales)
-validation_sales = train_scaler.transform(validation_sales)
-test_sales = train_scaler.transform(test_sales)
+train_dadus = train_scaler.transform(train_dadus)
+validation_dadus = train_scaler.transform(validation_dadus)
+test_dadus = train_scaler.transform(test_dadus)
 
 # Linear Regression
-linear_model = LinearRegression().fit(train_sales, train_price)
-predict_price = linear_model.predict(test_sales)
-test_rmse = sqrt(mse(predict_price, test_price))
+linear_model = LinearRegression().fit(train_dadus, train_energy)
+predict_energy = linear_model.predict(test_dadus)
+test_rmse = sqrt(mse(predict_energy, test_energy))
 
 # Ridge Regression
 l2_penalty = np.logspace(-5, 5, 11, base=10)
 data = []
 for l2 in l2_penalty:
-    ridge_model = Ridge(l2, random_state=0).fit(train_sales, train_price)
-    train_predict_price = ridge_model.predict(train_sales)
-    train_rmse = sqrt(mse(train_predict_price, train_price))
-    validation_predict_price = ridge_model.predict(validation_sales)
-    validation_rmse = sqrt(mse(validation_predict_price, validation_price))
+    ridge_model = Ridge(l2, random_state=0).fit(train_dadus, train_energy)
+    train_predict_energy = ridge_model.predict(train_dadus)
+    train_rmse = sqrt(mse(train_predict_energy, train_energy))
+    validation_predict_energy = ridge_model.predict(validation_dadus)
+    validation_rmse = sqrt(mse(validation_predict_energy, validation_energy))
     data.append({
         'l2_penalty': l2,
         'model': ridge_model,
@@ -120,23 +127,23 @@ index = ridge_data['validation_rmse'].idxmin()
 best_row = ridge_data.loc[index]
 best_l2 = best_row['validation_rmse']
 
-ridge_predict = best_row['model'].predict(test_sales)
-test_rmse = sqrt(mse(ridge_predict, test_price))
+ridge_predict = best_row['model'].predict(test_dadus)
+test_rmse = sqrt(mse(ridge_predict, test_energy))
 print(test_rmse)
 
 print_coefficients(best_row['model'], all_features)
 num_zero_coeffs_ridge = 0
 
 
-#LASSO
+# LASSO
 l1_penalty = np.logspace(1, 7, 7, base=10)
 data = []
 for l1 in l1_penalty:
-    lasso_model = Lasso(l1, random_state=0).fit(train_sales, train_price)
-    train_predict_price = lasso_model.predict(train_sales)
-    train_rmse = sqrt(mse(train_predict_price, train_price))
-    validation_predict_price = lasso_model.predict(validation_sales)
-    validation_rmse = sqrt(mse(validation_predict_price, validation_price))
+    lasso_model = Lasso(l1, random_state=0).fit(train_dadus, train_energy)
+    train_predict_energy = lasso_model.predict(train_dadus)
+    train_rmse = sqrt(mse(train_predict_energy, train_energy))
+    validation_predict_energy = lasso_model.predict(validation_dadus)
+    validation_rmse = sqrt(mse(validation_predict_energy, validation_energy))
     data.append({
         'l1_penalty': l1,
         'model': lasso_model,
@@ -165,8 +172,8 @@ index = lasso_data['validation_rmse'].idxmin()
 best_row = lasso_data.loc[index]
 best_l1 = best_row['validation_rmse']
 
-lasso_predict = best_row['model'].predict(test_sales)
-test_rmse = sqrt(mse(lasso_predict, test_price))
+lasso_predict = best_row['model'].predict(test_dadus)
+test_rmse = sqrt(mse(lasso_predict, test_energy))
 print(test_rmse)
 
 print_coefficients(best_row['model'], all_features)
