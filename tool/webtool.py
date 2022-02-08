@@ -4,6 +4,8 @@ import numpy as np
 import pickle
 from PIL import Image
 import xgboost
+import datetime
+
 # from studio2021 import streamlit_dictionaries
 
 # load pickled xgboost model to predict EUI
@@ -47,6 +49,13 @@ typologyd = {
     '2 units, 1 story': {'num_units': 2, 'num_stories': 1}
 }
 
+EUI = 0
+
+@st.cache
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
+ 
 def calc_r(polyiso_t, cellulose_t):
     """Calculates wall assembly R value.
 
@@ -61,7 +70,7 @@ def calc_r(polyiso_t, cellulose_t):
     cladding = 0.61 #aluminum
     ply = 0.63
     
-    assembly_r = cladding + air_gap + polyiso_t*7 + ply + cellulose_t*3.5 #shouldn't it include air films???
+    assembly_r = cladding + air_gap + polyiso_t*7 + ply + cellulose_t*3.5 #TODO shouldn't it include air films???
     
     return assembly_r
 
@@ -88,7 +97,7 @@ def create_input_df(site, size, footprint, height, num_stories, num_units, inf_r
         assembly_r (float): total r value of wall assembly
 
     Returns:
-        pred_input (DataFrame): dataframe of shape TODO**
+        pred_input (DataFrame): dataframe of shape (1,15)
     """
     inputs = {
         'site': [site], 'size': [size], 'footprint': [footprint], 'height': [height], 'num_stories': [num_stories], 'num_units': [num_units],
@@ -97,6 +106,7 @@ def create_input_df(site, size, footprint, height, num_stories, num_units, inf_r
     }
     pred_input = pd.DataFrame(inputs)
     pred_input.drop('num_units', axis=1, inplace=True) #TODO!!
+    print(pred_input.shape)
     return pred_input
     
 def predict_eui(pred_input):
@@ -113,7 +123,15 @@ def predict_eui(pred_input):
 
 def main():
     st.title('DADU Energy Simulator')
-
+    col1, col2 = st.columns(2)
+    col1.header('Results')
+    col2.header('Energy Indicators')
+    
+    if (st.sidebar.button('Predict', key='pred_button')):
+        activate = True
+    else:
+        activate = False
+    
     # sidebar sliders
     site = st.sidebar.slider('site', 0, 3, key='site')
     size = st.sidebar.slider('square footage', 100, 1000,
@@ -157,25 +175,67 @@ def main():
     # sur_area =
     # volume = footprint * height
     # surf_vol_ratio = surf_area / volume
-
     # create df from user input
-    pred_input = create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr,
+    if activate:
+        pred_input = create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr,
                                  frame, polyiso_t, cellulose_t, rear_setback, side_setback, structure_setback, assembly_r)
-    
-    EUI = predict_eui(pred_input)
-    kgCO2e = 0.135669
-    CO2 = EUI * kgCO2e
-    full_df = pred_input
-    full_df['EUI'] = EUI
-    full_df['CO2'] = CO2
 
-    st.dataframe(full_df)
+        EUI = predict_eui(pred_input)
+        kgCO2e = 0.135669
+        CO2 = EUI * kgCO2e * 3.2 * size * 0.09290304
+        full_df = pred_input
+        full_df['EUI'] = EUI
+        full_df['CO2'] = CO2
+
+        with col1:
+            st.metric('Predicted EUI', EUI)
+        with col2:
+            st.metric('Predicted kgCO2e (operational)', CO2)
+        
+        csv = convert_df(full_df)
+        now = datetime.datetime.now()
+        file_name = 'results_' + (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'
+        st.download_button('Download Results CSV', data=csv, file_name=file_name)
+
+
+    #     if EUI == 0:
+    #         EUI_last = 0
+    #         CO2_last = 0
+    #     if EUI != None:
+    #         EUI_delta = (EUI - EUI_last) / EUI_last *100
+    #         CO2_delta = (CO2 - CO2_last) / CO2_last *100
+    #     else:
+    #         EUI_delta = None
+    #         CO2_delta = None
+    #     col1.table(full_df)
+    #     with col2:
+    #         if EUI_delta == None:
+    #             st.metric('Predicted EUI', EUI)
+    #             st.metric('Predicted kgCO2e (operational)', CO2)
+    #         else:
+    #             st.metric('Predicted EUI', EUI, EUI_delta)
+    #             st.metric('Predicted kgCO2e (operational)', CO2, CO2_delta)
+    
+    # if 'EUI' in locals():
+    #     print('in locals')
+    #     EUI_last = EUI
+    #     CO2_last = CO2
+    
+    
     # download results
-    # st.download_button()
+    # if 'full_df' in locals():
+    #     st.download_button('Download Results File', full_df)
+    # else:
+    #     st.markdown('please generate prediction')
+    
+    
     
     #add option to use button to predict instead of real-time
     #add st.metric, show delta from last simulation ran- need to add button then, dont show delta if no button before prediction
     #add download option for output dataframe
 
 if __name__=='__main__':
+    for i in range(50): print('')
     main()
+
+# to run: streamlit run /Users/preston/Documents/GitHub/msdc-thesis/tool/webtool.py
