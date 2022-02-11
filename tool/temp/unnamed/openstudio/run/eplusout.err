@@ -1,4 +1,4 @@
-Program Version,EnergyPlus, Version 9.6.0-4b123cf80f, YMD=2022.02.08 10:10,
+Program Version,EnergyPlus, Version 9.6.0-4b123cf80f, YMD=2022.02.10 15:22,
    ************* Beginning Zone Sizing Calculations
    ** Warning ** Weather file location will be used rather than entered (IDF) Location object.
    **   ~~~   ** ..Location object=SITE 1
@@ -18,20 +18,13 @@ Program Version,EnergyPlus, Version 9.6.0-4b123cf80f, YMD=2022.02.08 10:10,
    ** Warning ** ProcessScheduleInput: Schedule:Constant="ALWAYS OFF DISCRETE", Blank Schedule Type Limits Name input -- will not be validated.
    ** Warning ** ProcessScheduleInput: Schedule:Constant="ALWAYS ON CONTINUOUS", Blank Schedule Type Limits Name input -- will not be validated.
    ** Warning ** GetHTSurfaceData: Surfaces with interface to Ground found but no "Ground Temperatures" were input.
-   **   ~~~   ** Found first in surface=ZONE1_FB552714..FACE0
+   **   ~~~   ** Found first in surface=TEST_1_D4FB9FEF..FACE5
    **   ~~~   ** Defaults, constant throughout the year of (18.0) will be used.
-   ** Warning ** CalcSurfaceCentroid: 12 Surfaces have the Z coordinate < 0.
-   **   ~~~   ** ...in any calculations, Wind Speed will be 0.0 for these surfaces.
-   **   ~~~   ** ...in any calculations, Outside temperatures will be the outside temperature + 9.750E-003 for these surfaces.
-   **   ~~~   ** ...that is, these surfaces will have conditions as though at ground level.
-   ** Warning ** CheckUsedConstructions: There are 21 nominally unused constructions in input.
+   ** Warning ** CheckUsedConstructions: There are 20 nominally unused constructions in input.
    **   ~~~   ** For explicit details on each unused construction, use Output:Diagnostics,DisplayExtraWarnings;
-   ** Warning ** DetermineShadowingCombinations: There are 1 surfaces which are receiving surfaces and are non-convex.
-   **   ~~~   ** ...Shadowing values may be inaccurate. Check .shd report file for more surface shading details
-   **   ~~~   ** ...Add Output:Diagnostics,DisplayExtraWarnings; to see individual warnings for each surface.
    ** Warning ** Temperature out of range [-100. to 200.] (PsyPsatFnTemp)
    **   ~~~   **  Routine=CalcPurchAirLoads, During Sizing, Environment=SEATTLE SEATTLE TACOMA INTL A ANN HUM_N 99.6% CONDNS DP=>MCDB, at Simulation time=12/21 24:00 - 24:10
-   **   ~~~   **  Input Temperature=-568.34
+   **   ~~~   **  Input Temperature=-1621.18
    ************* Beginning Plant Sizing Calculations
    ************* Testing Individual Branch Integrity
    ************* All Branches passed integrity testing
@@ -74,10 +67,10 @@ Program Version,EnergyPlus, Version 9.6.0-4b123cf80f, YMD=2022.02.08 10:10,
    ************* The following recurring error messages occurred.
    *************
    *************  ** Warning ** Temperature out of range [-100. to 200.] (PsyPsatFnTemp)
-   *************  **   ~~~   **   This error occurred 1 total times;
+   *************  **   ~~~   **   This error occurred 2 total times;
    *************  **   ~~~   **   during Warmup 0 times;
-   *************  **   ~~~   **   during Sizing 1 times.
-   *************  **   ~~~   **   Max=-568.340271 C  Min=-568.340271 C
+   *************  **   ~~~   **   during Sizing 2 times.
+   *************  **   ~~~   **   Max=-1621.18158 C  Min=-1645.055359 C
    *************
    *************
    ************* ===== Final Error Summary =====
@@ -88,5 +81,5 @@ Program Version,EnergyPlus, Version 9.6.0-4b123cf80f, YMD=2022.02.08 10:10,
    ************* ..object. You may remove the constructions indicated (when you use the DisplayExtraWarnings option).
    *************
    ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
-   ************* EnergyPlus Sizing Error Summary. During Sizing: 16 Warning; 0 Severe Errors.
-   ************* EnergyPlus Completed Successfully-- 24 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  7.10sec
+   ************* EnergyPlus Sizing Error Summary. During Sizing: 15 Warning; 0 Severe Errors.
+   ************* EnergyPlus Completed Successfully-- 23 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  5.70sec
