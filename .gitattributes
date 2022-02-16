@@ -5,5 +5,5 @@
 * .py linguist-detectable=true
 * .csv linguist-detectable=false
 
-tool/temp linguist-vendored
-tool/sim_output/ linguist-vendored
+tool/temp/* linguist-vendored
+tool/sim_output/* linguist-vendored
