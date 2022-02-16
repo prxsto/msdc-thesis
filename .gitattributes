@@ -1,3 +1,3 @@
-# * linguist-vendored
+* linguist-vendored
 *.rb linguist-language=Java
 # *.py linguist-vendored=false
