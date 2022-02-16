@@ -3,5 +3,6 @@
 # *.py linguist-vendored=false
 * .html linguist-detectable=false
 * .py linguist-detectable=true
+* .csv linguist-detectable=false
 
 tool/sim_output/ linguist-vendored
