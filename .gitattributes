@@ -3,3 +3,5 @@
 # *.py linguist-vendored=false
 * .html linguist-detectable=false
 * .py linguist-detectable=true
+
+tool/sim_output/ linguist-vendored
