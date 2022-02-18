@@ -1,9 +1,17 @@
+import csv
+from operator import index
+from numpy import full, poly
 import streamlit as st
 import pandas as pd
 import pickle
+import plotly as plt
+import plotly.express as px
+import plotly.graph_objects as go
 from PIL import Image
-import xgboost
+import xgboost as xgb
 import datetime
+import energy_model as em
+
 
 # from studio2021 import streamlit_dictionaries
 
@@ -11,10 +19,14 @@ import datetime
 pickle_in = open('xgboost_reg.pkl', 'rb')
 regressor = pickle.load(pickle_in)
 
+# load pickled parallel coordinate chart
+pickle_in = open('para_coord.pkl', 'rb')
+para_coord = pickle.load(pickle_in)
+
 # dictionaries to translate between user input and prediction input values
 infd = {
-    'standard': 0.00059,
-    'passive house': 0.00015
+    'Standard': 0.00059,
+    'Passive house': 0.00015
 }
 oriend = {
     'North': 1,
@@ -23,26 +35,30 @@ oriend = {
     'West': 4
 }
 setbackd = {
-    'existing': {
-        0: {'rear': 0, 'side': 5, 'structure': 5},
-        1: {'rear': 5, 'side': 5, 'structure': 5},
-        2: {'rear': 0, 'side': 5, 'structure': 5},
-        3: {'rear': 5, 'side': 5, 'structure': 5}
+    'Existing': {
+        'Infill with alley': {'rear': 0, 'side': 5, 'structure': 5},
+        'Infill without alley': {'rear': 5, 'side': 5, 'structure': 5},
+        'Corner with alley': {'rear': 0, 'side': 5, 'structure': 5},
+        'Corner without alley': {'rear': 5, 'side': 5, 'structure': 5}
     },
-    'proposed': {
-        0: {'rear': 0, 'side': 5, 'structure': 5},
-        1: {'rear': 0, 'side': 5, 'structure': 5},
-        2: {'rear': 0, 'side': 5, 'structure': 5},
-        3: {'rear': 0, 'side': 5, 'structure': 5}
+    'Proposed': {
+        'Infill with alley': {'rear': 0, 'side': 5, 'structure': 5},
+        'Infill without alley': {'rear': 0, 'side': 5, 'structure': 5},
+        'Corner with alley': {'rear': 0, 'side': 5, 'structure': 5},
+        'Corner without alley': {'rear': 0, 'side': 5, 'structure': 5}
     }
 }
 typologyd = {
-    '1 unit, 1 story': {'num_units': 1, 'num_stories': 1},
-    '1 unit, 2 stories': {'num_units': 1, 'num_stories': 2},
-    '2 units, 1 story': {'num_units': 2, 'num_stories': 1}
+    '1 Unit, 1 Story': {'num_units': 1, 'num_stories': 1},
+    '1 Unit, 2 Stories': {'num_units': 1, 'num_stories': 2},
+    '2 Units, 1 Story': {'num_units': 2, 'num_stories': 1}
 }
-
-EUI = 0
+sited = {
+    'Corner with alley':0,
+    'Corner without alley':1,
+    'Infill with alley':2,
+    'Infill without alley':3
+}
 
 @st.cache
 def convert_df(df):
@@ -115,124 +131,259 @@ def predict_eui(pred_input):
     prediction = regressor.predict(pred_input)
     return prediction
 
+def user_favorites(results, count, favorites): #TODO
+    """Takes user's list of favorites appends results of each to new dataframe. Allows user to download csv 
+    with all of their top picks.
+
+    Args:
+        full_df (DataFrame): DataFrame containing results of favorited simulation
+        favorites (List): List containing all of the runs which are flagged as favorites
+    """
+    fav_df = pd.DataFrame()
+    for row in favorites:
+        df = df.append(row, ignore_index=True)
+    return fav_df
+
+# def increment_counter():
+#     count += 1
+    
 def web_tool():
+    # inital values 
+    kgCO2e = 0.135669 
+    kwh_cost = .1189
+    init_eui = 125.23
+    init_eui_kwh = 400.74
+    init_co2 = 2020.41
+    init_cost = 1770.69
+    
+    count = 0
+    
+    entry_dict = {
+        'site': 3,
+        'size': 400,
+        'footprint': 400,
+        'height': 10,
+        'num_stories': 1,
+        'num_units': 1,
+        'inf_rate': .00059,
+        'orientation': 1,
+        'wwr': .4,
+        'frame': 2,
+        'polyiso_t': .75,
+        'cellulose_t': 8,
+        'rear_setback': 0,
+        'side_setback': 5,
+        'structure_setback': 5,
+        'assembly_r': 36.34,
+        'eui_kwh': init_eui_kwh,
+        'eui_kbtu': init_eui,
+        'annual_carbon': init_co2,
+        'annual_cost': init_cost
+    }
+    
+    if 'results' not in st.session_state:
+        st.session_state.results = pd.DataFrame()
+        st.session_state.results = st.session_state.results.append(
+            entry_dict, ignore_index=True)
+    if 'favorites' not in st.session_state:
+        st.session_state.favorites = pd.DataFrame()
+    
     st.title('DADU Energy Simulator')
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     col1.header('Results')
-    col2.header('Energy Indicators')
-    
-    if (st.sidebar.button('Predict', key='pred_button')):
-        activate = True
-    else:
-        activate = False
-    
-    # sidebar sliders
-    site = st.sidebar.slider('site', 0, 3, key='site')
-    size = st.sidebar.slider('square footage', 100, 1000,
-                            value=400, step=10, key='sqft')
-    typology = st.sidebar.select_slider('DADU typology',
-                                        ['1 unit, 1 story', '1 unit, 2 stories', '2 units, 1 story'], key='typology')
-    num_stories = typologyd[typology]['num_stories']
-    num_units = typologyd[typology]['num_units']
+    col2.header('Options')
+    col3.header('3D Viewer')
+        
+    # create sidebar form
+    st.sidebar.header('Prediction Input')
+    with st.sidebar.form(key='user_input'):
+        # sidebar dropdowns
+        site = st.selectbox('Lot type', options=['Corner with alley', 'Corner without alley', 
+                                                     'Infill with alley', 'Infill without alley'], 
+                                index=3, help='Select the type of lot that your existing dwelling belongs to')
+        typology = st.selectbox('DADU typology', ['1 Unit, 1 Story', '1 Unit, 2 Stories', 
+                                        '2 Units, 1 Story'], index=0, 
+                                        help='Select the number of stories and units')
+        inf_rate = infd[st.selectbox('Infiltration rate (cubic m/s?)', # double check units TODO 
+                                             ['Standard', 'Passive house'], 
+                                             help='Select either standard infiltration rate or passive house (extremely tight enclosure)',
+                                             index=0, key='inf')]
+        orientation = oriend[st.selectbox('Orientation',
+                                                  ['North', 'South', 'East', 'West'], 
+                                                  help='Select the direction of existing dwelling to DADU',
+                                                  key='orientation')]
+        setback = setbackd[st.selectbox('Land use setbacks',
+                                                ['Existing', 'Proposed'], 
+                                                help='Select either existing (2022), or proposed (more lenient) setbacks',
+                                                key='setback')][site]        
+        
+        # sidebar sliders
+        size = st.slider('Total floor area (sqft)', 100, 1000,
+                                value=400, 
+                                help='Select the total square footage of floor (maximum floor area per Seattle code is 1000sqft)',
+                                step=10, key='sqft')
+        wwr = st.slider('Window-to-wall ratio (WWR)', 0.0, 1.0, 
+                                help='Window to wall ratio is the ratio between glazing (window) surface area and opaque surface area',
+                                value=.4, key='wwr')
+        polyiso_t = st.slider('Polyiso insulation depth (inches)', 0.0, 1.0, 
+                                      help='Select amount of polyiso insulation in wall assembly',
+                                      step=.25, value=.75, key='polyiso')
+        cellulose_t = st.slider('Cellulose insulation depth (inches)', 0.0, 10.0, 
+                                        help='Select amount of cellulose insulation in wall assembly',
+                                        step=.5, value=8.0, key='cellulose')
 
-    inf_rate = infd[st.sidebar.select_slider(
-        'infiltration rate', ['standard', 'passive house'], key='inf')]
-    orientation = oriend[st.sidebar.select_slider('direction existing to DADU',
-                                                ['North', 'South', 'East', 'West'], key='orientation')]
-    wwr = st.sidebar.slider('wwr', 0.0, 1.0, key='wwr')
-    # frame = framed[st.sidebar.select_slider(
-    #     'frame size', ['2x4', '2x6', '2x8', '2x10'], key='frame')]
-    polyiso_t = st.sidebar.slider('polyiso_t', 0, 1, step=1, key='polyiso')
-    cellulose_t = st.sidebar.slider('cellulose_t', 0, 10, key='cellulose')
-    if cellulose_t < 5.5:
-        frame = 0
-    elif cellulose_t >= 5.5 and cellulose_t < 7.25:
-        frame = 1
-    elif cellulose_t >= 7.25 and cellulose_t < 9.25:
-        frame = 2
-    else:
-        frame = 3
-    
-    setback = setbackd[st.sidebar.select_slider('land use setbacks',
-                                                ['existing', 'proposed'], key='setback')][site]
-    rear_setback = setback['rear']
-    side_setback = setback['side']
-    structure_setback = setback['structure']
+        if cellulose_t < 5.5:
+            frame = 0
+        elif cellulose_t >= 5.5 and cellulose_t < 7.25:
+            frame = 1
+        elif cellulose_t >= 7.25 and cellulose_t < 9.25:
+            frame = 2
+        else:
+            frame = 3
+            
+        site  = sited[site]
+        
+        rear_setback = setback['rear'] 
+        side_setback = setback['side']
+        structure_setback = setback['structure']
 
-    if num_stories == 1:
-        height = 10
-        footprint = size
-    else:
-        height = 20
-        footprint = size/2.
+        num_stories = typologyd[typology]['num_stories']
+        num_units = typologyd[typology]['num_units']
+        if num_stories == 1:
+            height = 10
+            footprint = size
+        else:
+            height = 20
+            footprint = size / 2.
 
-    assembly_r = calc_r(polyiso_t, cellulose_t)
-    # sur_area =
-    # volume = footprint * height
-    # surf_vol_ratio = surf_area / volume
-    
-    # from arcgis import GIS TODO
-    # footprint_max = area_buildable from GIS data based on city land use code
-    # st.slider('square footage', 100, footprint_max, value=footprint_max/2, step=10, key='sqft')
+        assembly_r = round(float(calc_r(polyiso_t, cellulose_t)), 2)
+        
+        # submit user prediction
+        activate = st.form_submit_button(label='Predict', 
+                            help='Click \"Predict\" once you have selected your desired options')
+    with st.sidebar: 
+        # clear results
+        clear_res = st.button('Clear results')
+        show_dataframe = st.button('Show dataframe')
 
-    # sur_area =
-    # volume = footprint * height
-    # surf_vol_ratio = surf_area / volume
-    # create df from user input
+    if clear_res:
+        # st.session_state.results = pd.DataFrame()
+        # last_row = st.session_state.results.iloc[len(st.session_state.results.index) - 1:, :]
+        st.session_state.results = st.session_state.results.loc[0]
+        # st.session_state.results = st.session_state.results.append
+        #     entry_dict, ignore_index=True)
+        
+    if show_dataframe:
+        st.write(st.session_state.results)
+        
     if activate:
         pred_input = create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr,
-                                 frame, polyiso_t, cellulose_t, rear_setback, side_setback, structure_setback, assembly_r)
+                                frame, polyiso_t, cellulose_t, rear_setback, side_setback, structure_setback, assembly_r)
 
-        EUI = predict_eui(pred_input)
-        kgCO2e = 0.135669
-        CO2 = EUI * kgCO2e * 3.2 * size * 0.09290304
-        full_df = pred_input
-        full_df['EUI'] = EUI
-        full_df['CO2'] = CO2
-
-        rounded_eui = round(float(EUI), 2)
-        rounded_co2 = round(float(CO2), 2)
+        eui = predict_eui(pred_input)
+        co2 = eui * 3.2 * size * 0.09290304 * kgCO2e
+        cost = eui * 3.2 * size * 0.09290304 * kwh_cost
+        eui_kwh = eui * 3.2
         
-        with col1:
-            st.metric('Predicted EUI', rounded_eui)
-        with col2:
-            st.metric('Predicted kgCO2e (operational)', rounded_co2)
+        rounded_eui = round(float(eui), 2)
+        rounded_eui_kwh = round(float(eui_kwh), 2)
+        rounded_co2 = round(float(co2), 2)
+        rounded_cost = round(float(cost), 2)
         
-        csv = convert_df(full_df)
+        outcomes_dict = {
+            'site': site,
+            'size': size,
+            'footprint': footprint,
+            'height': height,
+            'num_stories': num_stories,
+            'num_units': num_units,
+            'inf_rate': inf_rate,
+            'orientation': orientation,
+            'wwr': wwr,
+            'frame': frame,
+            'polyiso_t': polyiso_t,
+            'cellulose_t': cellulose_t,
+            'rear_setback': rear_setback,
+            'side_setback': side_setback,
+            'structure_setback': structure_setback,
+            'assembly_r': assembly_r,
+            'eui_kwh': rounded_eui_kwh,
+            'eui_kbtu': rounded_eui,
+            'annual_carbon': rounded_co2,
+            'annual_cost': rounded_cost
+        }
+        count += 0
+        outcomes = pd.DataFrame(outcomes_dict, index=[0])
+        st.session_state.results = st.session_state.results.append(outcomes, ignore_index=True)
+        st.write(st.session_state.results)
+        
+    with col2:
+        if st.button('Favorite', help=
+            'Add to list of favorite combinations to easily return to result'):
+            # csv_favs = convert_df(user_favorites(results, count))
+            pass
         now = datetime.datetime.now()
-        file_name = 'results_' + (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'
-        st.download_button('Download Results CSV', data=csv, file_name=file_name)
+        file_name_all = 'results_' + (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'
+        csv_all = convert_df(st.session_state.results)
+        st.download_button('Download All Results',
+                           data=csv_all, file_name=file_name_all)
 
+        file_name_favs = 'favorites_' + \
+            (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'  # TODO
+        csv_favs = convert_df(st.session_state.favorites)
+        st.download_button('Download Favorited Results',
+                           data=csv_favs, file_name=file_name_favs)
+        
+        advanced_toggle = st.checkbox('Toggle advanced view', 
+                                        help='Enables advanced user view')
+        
+    with col1:
+        if count == 0:
+            st.metric('Predicted EUI', str(init_eui) + ' kBTU/sqft / ' + str(init_eui_kwh) + ' kWh/m2')
+            st.metric('Predicted Operational Carbon', str(init_co2) + ' kgCO2')
+            st.metric('Predicted yearly energy cost', '$' + str(init_cost))     
+        elif count > 0:
+            eui_kwh = rounded_eui * 3.2
+            rounded_eui_kwh = round(float(eui_kwh), 2)
+            st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft / ' + str(rounded_eui_kwh) + ' kWh/m2')
+            st.metric('Predicted Operational Carbon', str(rounded_co2) + ' kgCO2')
+            st.metric('Predicted yearly energy cost', '$' + str(rounded_cost))  
+            
+    # with col3:
 
-    #     if EUI == 0:
-    #         EUI_last = 0
-    #         CO2_last = 0
-    #     if EUI != None:
-    #         EUI_delta = (EUI - EUI_last) / EUI_last *100
-    #         CO2_delta = (CO2 - CO2_last) / CO2_last *100
-    #     else:
-    #         EUI_delta = None
-    #         CO2_delta = None
-    #     col1.table(full_df)
-    #     with col2:
-    #         if EUI_delta == None:
-    #             st.metric('Predicted EUI', EUI)
-    #             st.metric('Predicted kgCO2e (operational)', CO2)
-    #         else:
-    #             st.metric('Predicted EUI', EUI, EUI_delta)
-    #             st.metric('Predicted kgCO2e (operational)', CO2, CO2_delta)
     
-    # if 'EUI' in locals():
-    #     print('in locals')
-    #     EUI_last = EUI
-    #     CO2_last = CO2
-    
-    
-    # download results
-    # if 'full_df' in locals():
-    #     st.download_button('Download Results File', full_df)
-    # else:
-    #     st.markdown('please generate prediction')
+    # st.write() TODO add line graph with prediction (count) on x axis, predicted EUI and carbon on y axes (one on each side)
+    if advanced_toggle:
+        with st.container():
+            # with st.expander('Advanced features', expanded=False):
+                # st.plotly_chart(para_coord)
+            # line_results = st.session_state.results[['eui_kbtu', 'annual_carbon', 'annual_cost']]
+            line_results = st.session_state.results['eui_kbtu']
+            # line_results['annual_carbon (metric tons)'] = line_results['annual_carbon'].div(1000)
+            # line_results['annual_cost (thousand dollars)'] = line_results['annual_cost'].div(1000)
+            # line_results = line_results[['eui_kbtu', 'annual_carbon (metric tons)', 'annual_cost (thousand dollars)']]
+            
+            # line_results
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=list(range(line_results.shape[0])),
+                                        y=line_results,
+                                    #  hovertext=
+                                    hoverinfo='y',
+                                    
+                                        mode='lines+markers',
+                                        name='EUI (kBTU/ft2)'))
+            fig.update_layout(
+                
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(para_coord, use_container_width=True)
+            # line_chart = px.line(line_results, markers=True)
+            # st.line_chart(data=line_results)
+            
+            # st.plotly_chart(line_chart)
+
+st.set_page_config(layout='wide')
     
     
     

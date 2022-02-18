@@ -8,25 +8,27 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.model_selection import RandomizedSearchCV
 import numpy as np
+from tqdm import tqdm
 
 def csv_to_df(path):
     all_files = glob.glob(os.path.join(path, "*.csv"))
 
     df = pd.DataFrame()
-    for f in all_files:
+    for f in tqdm(all_files):
         row = pd.read_csv(f, sep=',', names=['filename', 'site', 'size', 'footprint', 'height', 'num_stories', 'num_units',
                                          'num_adiabatic', 'inf_rate', 'orientation', 'wwr', 'frame', 'polyiso_t', 'cellulose_t',
                                          'setback', 'rear_setback', 'side_setback', 'structure_setback', 'assembly_r',
-                                         'area_buildable', 'surf_area', 'volume', 'surf_vol_ratio', 'cooling',
+                                         'area_buildable', 'surf_tot', 'surf_glaz', 'surf_opaq', 'volume', 'surf_vol_ratio', 'cooling',
                                          'heating', 'lighting', 'equipment', 'water', 'eui_kwh', 'eui_kbtu', 'carbon', 'kg_CO2e'])
         df = df.append(row, ignore_index=True)
     return df
     
 def xgboost_regression(data, loss='rmse', random_search=False, grid_search=False, hyper=False):
     
-    labels_drop = ['filename', 'num_adiabatic', 'setback', 'area_buildable',  'cooling',
-                    'heating', 'lighting', 'equipment', 'water', 'carbon', 'eui_kwh', 
-                    'surf_area', 'volume', 'surf_vol_ratio', 'kg_CO2e']
+    labels_drop = ['filename', 'num_adiabatic', 'setback', 'rear_setback', 'side_setback', 
+                   'structure_setback', 'area_buildable',  'cooling', 'heating', 
+                    'lighting', 'equipment', 'water', 'eui_kwh', 'carbon', 'kg_CO2e']
+    
     data.drop(labels=labels_drop, axis=1, inplace=True)
     print(data.shape)
     print(data.head())
@@ -84,20 +86,32 @@ def xgboost_regression(data, loss='rmse', random_search=False, grid_search=False
 
     return xgboost_reg
 
+def pickle_df(data):
+    pckl = data.to_pickle('./energy_data.pkl')
+    # pickle_out = open('energy_data.pkl', 'wb')
+    # pickle.dump(data, pickle_out)
+    # pickle_out.close()
+    print('Dataframe has been pickled')
+    return pckl
+    
 def plot_feature_importance(model):
     xgb.plot_importance(model)
     plt.rcParams['figure.figsize'] = [5, 5]
-    plt.show()
+    fig = plt.show()
+    return fig
     
 
 if __name__ == '__main__':
-    for i in range(50):
-        print('')
+    # for i in range(50):
+    #     print('')
         
     # data = pd.read_csv(
         # '/Users/preston/Documents/GitHub/msdc-thesis/tool/results/1k_results.csv')
     data = csv_to_df('/Users/preston/Documents/GitHub/msdc-thesis/tool/temp')
+    
+    pickle_df(data)
     print(data.head())
     print(data.shape)
-    model = xgboost_regression(data, loss='mae', random_search=True, grid_search=False, hyper=False)
-    plot_feature_importance(model)
+    
+    # model = xgboost_regression(data, loss='mae', random_search=True, grid_search=False, hyper=False)
+    # plot_feature_importance(model)
