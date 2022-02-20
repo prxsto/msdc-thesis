@@ -1,0 +1,12 @@
+{
+  "FromHoneybeeModel": {
+    "model_json": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\tool\\temp\\unnamed\\openstudio\\unnamed.hbjson",
+    "schedule_csv_dir": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\tool\\temp\\unnamed\\openstudio\\schedules",
+    "include_datetimes": false,
+    "applicable": true
+  },
+  "FromHoneybeeSimulationParameter": {
+    "simulation_parameter_json": "C:\\Users\\papep\\Documents\\GitHub\\msdc-thesis\\tool\\temp\\unnamed\\openstudio\\simulation_parameter.json",
+    "applicable": true
+  }
+}
