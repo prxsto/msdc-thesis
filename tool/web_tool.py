@@ -7,6 +7,7 @@ import pickle
 import plotly as plt
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from PIL import Image
 import xgboost as xgb
 import datetime
@@ -189,10 +190,10 @@ def web_tool():
         st.session_state.favorites = pd.DataFrame()
     
     st.title('DADU Energy Simulator')
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     col1.header('Results')
     col2.header('Options')
-    col3.header('3D Viewer')
+    # col3.header('3D Viewer')
         
     # create sidebar form
     st.sidebar.header('Prediction Input')
@@ -261,20 +262,6 @@ def web_tool():
         # submit user prediction
         activate = st.form_submit_button(label='Predict', 
                             help='Click \"Predict\" once you have selected your desired options')
-    with st.sidebar: 
-        # clear results
-        clear_res = st.button('Clear results')
-        show_dataframe = st.button('Show dataframe')
-
-    if clear_res:
-        # st.session_state.results = pd.DataFrame()
-        # last_row = st.session_state.results.iloc[len(st.session_state.results.index) - 1:, :]
-        st.session_state.results = st.session_state.results.loc[0]
-        # st.session_state.results = st.session_state.results.append
-        #     entry_dict, ignore_index=True)
-        
-    if show_dataframe:
-        st.write(st.session_state.results)
         
     if activate:
         pred_input = create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr,
@@ -282,7 +269,7 @@ def web_tool():
 
         eui = predict_eui(pred_input)
         co2 = eui * 3.2 * size * 0.09290304 * kgCO2e
-        cost = eui * 3.2 * size * 0.09290304 * kwh_cost
+        cost = eui * 3.2 * size * 0.09290304 * kwh_cost / 12
         eui_kwh = eui * 3.2
         
         rounded_eui = round(float(eui), 2)
@@ -315,13 +302,14 @@ def web_tool():
         count += 0
         outcomes = pd.DataFrame(outcomes_dict, index=[0])
         st.session_state.results = st.session_state.results.append(outcomes, ignore_index=True)
-        st.write(st.session_state.results)
+        # st.write(st.session_state.results)
         
     with col2:
         if st.button('Favorite', help=
             'Add to list of favorite combinations to easily return to result'):
             # csv_favs = convert_df(user_favorites(results, count))
-            pass
+            pass #TODO
+        
         now = datetime.datetime.now()
         file_name_all = 'results_' + (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'
         csv_all = convert_df(st.session_state.results)
@@ -334,50 +322,135 @@ def web_tool():
         st.download_button('Download Favorited Results',
                            data=csv_favs, file_name=file_name_favs)
         
-        advanced_toggle = st.checkbox('Toggle advanced view', 
-                                        help='Enables advanced user view')
+        # clear results
+        clear_res = st.button('Clear results')
+        show_dataframe = st.checkbox('Show dataframe', value=False)
+        advanced_toggle1 = st.checkbox('Toggle advanced view',
+                                      help='Enables advanced user view') #TODO
+
+    if clear_res:
+        # st.session_state.results = pd.DataFrame()
+        # last_row = st.session_state.results.iloc[len(st.session_state.results.index) - 1:, :]
+        st.session_state.results = st.session_state.results.loc[0]
+        # st.session_state.results = st.session_state.results.append
+        #     entry_dict, ignore_index=True)
+
+    if show_dataframe:
+        st.write(st.session_state.results)
         
     with col1:
         if count == 0:
-            st.metric('Predicted EUI', str(init_eui) + ' kBTU/sqft / ' + str(init_eui_kwh) + ' kWh/m2')
+            # st.metric('Predicted EUI', str(init_eui) + ' kBTU/sqft ' + str(init_eui_kwh) + ' kWh/m2')
+            st.metric('Predicted EUI', str(init_eui) + ' kBTU/sqft')
             st.metric('Predicted Operational Carbon', str(init_co2) + ' kgCO2')
-            st.metric('Predicted yearly energy cost', '$' + str(init_cost))     
+            st.metric('Predicted monthly energy cost', '$' + str(init_cost / 12))     
         elif count > 0:
             eui_kwh = rounded_eui * 3.2
             rounded_eui_kwh = round(float(eui_kwh), 2)
-            st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft / ' + str(rounded_eui_kwh) + ' kWh/m2')
+            # st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft ' + str(rounded_eui_kwh) + ' kWh/m2')
+            st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft')
             st.metric('Predicted Operational Carbon', str(rounded_co2) + ' kgCO2')
-            st.metric('Predicted yearly energy cost', '$' + str(rounded_cost))  
+            st.metric('Predicted monthly energy cost', '$' + str(rounded_cost))  
             
     # with col3:
 
     
     # st.write() TODO add line graph with prediction (count) on x axis, predicted EUI and carbon on y axes (one on each side)
+    advanced_toggle=True
     if advanced_toggle:
         with st.container():
             # with st.expander('Advanced features', expanded=False):
                 # st.plotly_chart(para_coord)
             # line_results = st.session_state.results[['eui_kbtu', 'annual_carbon', 'annual_cost']]
             line_results = st.session_state.results['eui_kbtu']
+            line_results_carbon = st.session_state.results['annual_carbon']
             # line_results['annual_carbon (metric tons)'] = line_results['annual_carbon'].div(1000)
             # line_results['annual_cost (thousand dollars)'] = line_results['annual_cost'].div(1000)
             # line_results = line_results[['eui_kbtu', 'annual_carbon (metric tons)', 'annual_cost (thousand dollars)']]
             
-            # line_results
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(line_results.shape[0])),
-                                        y=line_results,
-                                    #  hovertext=
-                                    hoverinfo='y',
-                                    
-                                        mode='lines+markers',
-                                        name='EUI (kBTU/ft2)'))
-            fig.update_layout(
-                
-            )
+            double = make_subplots(specs=[[{"secondary_y": True}]])
             
-            st.plotly_chart(fig, use_container_width=True)
-            st.plotly_chart(para_coord, use_container_width=True)
+            double.add_trace(go.Scatter(x=list(range(line_results.shape[0])),
+                                        y=line_results,
+                                        hovertext='kBTU/ft2',
+                                        hoverinfo='y+text',
+                                        marker={'size': 14},
+                                        mode='lines+markers',
+                                        # marker_symbol='line-ns',
+                                        # marker_line_width=2,
+                                        # name='EUI (kBTU/ft2)'
+                                        ),
+                             secondary_y=False
+                             )
+            
+            double.add_trace(go.Scatter(x=list(range(line_results_carbon.shape[0])),
+                                     y=line_results_carbon,
+                                     hovertext='kgCO2',
+                                     hoverinfo='y+text',
+                                     marker={'size': 14,
+                                             'color': 'red'},
+                                    mode='lines+markers',
+                                    # marker_symbol='line-ns',
+                                    # marker_line_width=2,
+                                    # name='EUI (kBTU/ft2)'
+                                    ),
+                             secondary_y=True
+                             )
+            
+            # line_results
+            # fig = go.FigureWidget()
+            double.update_xaxes(title_text='Result History')
+            
+            double.update_yaxes(title_text='EUI (kBTU/sqft)', secondary_y=False)
+            double.update_yaxes(title_text='kgCO2 (annual)', secondary_y=True)
+            
+            double.update_layout(
+                # title={'text':'Result History',
+                #        'x': .5,
+                #        'xanchor':'center'
+                # },
+                hovermode='x unified',
+                margin={'pad':10,
+                        'l':50,
+                        'r':50,
+                        'b':100,
+                        't':100},
+                font=dict(
+                    size=18,
+                    color="black"
+                )
+            )
+            # scatter = double.data[0]
+            
+            # # define callback function to return to prediction at point
+            # def callback_predict(trace, points, selector):
+            #     ind = scatter.marker.x
+            #     prev_predict = st.session_state.results.loc(ind)
+            #     predict_eui(prev_predict)
+            #     st.write([trace, points, selector])
+            
+            # # callback function to return to selected value's prediction
+            # scatter.on_click(callback_predict)
+
+            # display = go.Figure(scatter)
+            # display.update_layout(
+            #     # title='Result History', 
+            #     xaxis_title='Result',
+            #     yaxis_title='EUI (kBTU/sqft)',
+            #     hovermode='closest',
+            #     clickmode='event',
+            #     font=dict(
+            #         size=18,
+            #         color="black"
+            #         )
+            #     )  
+            # carbon_chart.update_layout(
+            #     xaxis_title='Result',
+            #     yaxis_title='Annual Carbon (kgCO2)',
+            # )
+            # st.plotly_chart(carbon_chart, use_container_width=True)
+            st.plotly_chart(double, use_container_width=True)
+            # st.plotly_chart(para_coord, use_container_width=True)
             # line_chart = px.line(line_results, markers=True)
             # st.line_chart(data=line_results)
             

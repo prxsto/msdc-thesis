@@ -1,3 +1,4 @@
+from multiprocessing.spawn import prepare
 import matplotlib.pyplot as plt
 import os
 import glob
@@ -7,6 +8,7 @@ import xgboost as xgb
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.model_selection import RandomizedSearchCV
+import plotly.express as px
 import numpy as np
 from tqdm import tqdm
 
@@ -22,13 +24,40 @@ def csv_to_df(path):
                                          'heating', 'lighting', 'equipment', 'water', 'eui_kwh', 'eui_kbtu', 'carbon', 'kg_CO2e'])
         df = df.append(row, ignore_index=True)
     return df
-    
-def xgboost_regression(data, loss='rmse', random_search=False, grid_search=False, hyper=False):
-    
-    labels_drop = ['filename', 'num_adiabatic', 'setback', 'rear_setback', 'side_setback', 
-                   'structure_setback', 'area_buildable',  'cooling', 'heating', 
-                    'lighting', 'equipment', 'water', 'eui_kwh', 'carbon', 'kg_CO2e']
-    
+
+
+def pickle_df(data):
+    pckl = data.to_pickle('./energy_data.pkl')
+    # pickle_out = open('energy_data.pkl', 'wb')
+    # pickle.dump(data, pickle_out)
+    # pickle_out.close()
+    print('Dataframe has been pickled')
+    return pckl
+
+
+def plot_feature_importance(model):
+    xgb.plot_importance(model)
+    plt.rcParams['figure.figsize'] = [5, 5]
+    fig = plt.show()
+    return fig
+
+
+def plot_prediction_analysis(y, y_pred):
+    fig = px.scatter(x=y, y=y_pred, labels={
+                     'x': 'ground truth', 'y': 'prediction'})
+    fig.add_shape(
+        type="line", line=dict(dash='dash'),
+        x0=y.min(), y0=y.min(),
+        x1=y.max(), y1=y.max()
+    )
+    return fig
+
+
+def prepare_data(df):
+    labels_drop = ['filename', 'num_adiabatic', 'setback', 'rear_setback', 'side_setback',
+                'structure_setback', 'area_buildable',  'cooling', 'heating',
+                'lighting', 'equipment', 'water', 'eui_kwh', 'carbon', 'kg_CO2e']
+
     data.drop(labels=labels_drop, axis=1, inplace=True)
     print(data.shape)
     print(data.head())
@@ -37,7 +66,22 @@ def xgboost_regression(data, loss='rmse', random_search=False, grid_search=False
 
     # train xgboost model
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+    
+    prepared_data = {'dataframe': data,
+        'X_train': X_train,
+        'X_test': X_test,
+        'y_train': y_train,
+        'y_test': y_test}
+    
+    return prepared_data
 
+def xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_search=False, hyper=False):
+
+    X_train = prepared_data['X_train']
+    X_test = prepared_data['X_test']
+    y_train = prepared_data['y_train']
+    y_test = prepared_data['y_test']
+    
     if loss == 'rmse':
         scoring = 'neg_mean_squared_error'
     elif loss == 'mae':
@@ -55,8 +99,10 @@ def xgboost_regression(data, loss='rmse', random_search=False, grid_search=False
     # params['eval_metric'] = 'mae'
     
     if random_search:
-        randomized_search = RandomizedSearchCV(model, params, n_iter=20, 
-                                        scoring=scoring, cv=3, verbose=3)
+        # randomized_search = RandomizedSearchCV(model, params, n_iter=20, 
+        #                                 scoring=scoring, cv=3, verbose=3)
+        randomized_search = RandomizedSearchCV(model, params, n_iter=1,
+                                               scoring=scoring, verbose=3)
         randomized_search.fit(X_train, y_train)
         xgboost_reg = randomized_search.best_estimator_
         preds = xgboost_reg.predict(X_test)
@@ -77,28 +123,14 @@ def xgboost_regression(data, loss='rmse', random_search=False, grid_search=False
         rmse = np.sqrt(mean_squared_error(y_test, preds))
         print("RMSE: %f" % (rmse))
 
-    input("press enter if you are happy with error and would like to pickle model")
+    # input("press enter if you are happy with error and would like to pickle model")
 
-    pickle_out = open('xgboost_reg.pkl','wb')
-    pickle.dump(xgboost_reg, pickle_out)
-    pickle_out.close()
-    print('Model has been pickled')
+    # pickle_out = open('xgboost_reg.pkl','wb')
+    # pickle.dump(xgboost_reg, pickle_out)
+    # pickle_out.close()
+    # print('Model has been pickled')
 
     return xgboost_reg
-
-def pickle_df(data):
-    pckl = data.to_pickle('./energy_data.pkl')
-    # pickle_out = open('energy_data.pkl', 'wb')
-    # pickle.dump(data, pickle_out)
-    # pickle_out.close()
-    print('Dataframe has been pickled')
-    return pckl
-    
-def plot_feature_importance(model):
-    xgb.plot_importance(model)
-    plt.rcParams['figure.figsize'] = [5, 5]
-    fig = plt.show()
-    return fig
     
 
 if __name__ == '__main__':
@@ -108,10 +140,29 @@ if __name__ == '__main__':
     # data = pd.read_csv(
         # '/Users/preston/Documents/GitHub/msdc-thesis/tool/results/1k_results.csv')
     data = csv_to_df('/Users/preston/Documents/GitHub/msdc-thesis/tool/temp')
-    
+    prepared_data = prepare_data(data)
     pickle_df(data)
-    print(data.head())
-    print(data.shape)
+
+    model = xgboost_regression(prepared_data, loss='mae', random_search=True, grid_search=False, hyper=False)
     
-    # model = xgboost_regression(data, loss='mae', random_search=True, grid_search=False, hyper=False)
+    X_train = prepared_data['X_train']
+    X_test = prepared_data['X_test']
+    y_train = prepared_data['y_train']
+    y_test = prepared_data['y_test']
+    
+    y_preds = model.predict(X_test)
+    
+    fig = px.scatter(x=y_test, y=y_preds, labels={
+                     'x': 'ground truth', 'y': 'prediction'})
+    fig.add_shape(
+        type="line", line=dict(dash='dash'),
+        x0=y_test.min(), y0=y_test.min(),
+        x1=y_test.max(), y1=y_test.max())
+    fig.show()
+    
+    
+        
+    # fig = plot_prediction_analysis(y_test, y_preds)
+    # fig.show
+    
     # plot_feature_importance(model)
