@@ -59,7 +59,7 @@ print(energy_data.shape)
 
 para_coord = go.Figure(data=go.Parcoords(
     line=dict(color=energy_data['eui_kbtu'],
-              colorscale='electric',
+              colorscale='black',
               showscale=True,
               cauto=True
               ),
@@ -130,11 +130,11 @@ para_coord.update_layout(
         text='Simulation Inputs')
 )
 
-pickle_out = open('para_coord.pkl','wb')
-pickle.dump(para_coord, pickle_out)
-pickle_out.close()
+# pickle_out = open('para_coord.pkl','wb')
+# pickle.dump(para_coord, pickle_out)
+# pickle_out.close()
     
-# para_coord.show()
+para_coord.show()
 
 # para_cats = px.parallel_categories(energy_data, 
 #             dimensions=['site', 'orientation', 'size', 'footprint', 'num_stories',

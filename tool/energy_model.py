@@ -8,9 +8,11 @@ import xgboost as xgb
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.model_selection import RandomizedSearchCV
+from bayes_opt import BayesianOptimization
 import plotly.express as px
 import numpy as np
 from tqdm import tqdm
+import shap
 
 def csv_to_df(path):
     all_files = glob.glob(os.path.join(path, "*.csv"))
@@ -55,7 +57,7 @@ def plot_prediction_analysis(y, y_pred):
 
 def prepare_data(df):
     labels_drop = ['filename', 'num_adiabatic', 'setback', 'rear_setback', 'side_setback',
-                'structure_setback', 'area_buildable',  'cooling', 'heating',
+                'structure_setback', 'area_buildable', 'surf_tot', 'cooling', 'heating',
                 'lighting', 'equipment', 'water', 'eui_kwh', 'carbon', 'kg_CO2e']
 
     data.drop(labels=labels_drop, axis=1, inplace=True)
@@ -75,19 +77,36 @@ def prepare_data(df):
     
     return prepared_data
 
-def xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_search=False, hyper=False):
+
+def xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_search=False, bay_opt=False):
 
     X_train = prepared_data['X_train']
     X_test = prepared_data['X_test']
     y_train = prepared_data['y_train']
     y_test = prepared_data['y_test']
     
+    dtrain = xgb.DMatrix(X_train, label=y_train)
+    dtest = xgb.DMatrix(X_test)
+    
+    def xgb_evaluate(max_depth, gamma, colsample_bytree):
+        params_ = {'eval_metric': 'rmse',
+                'max_depth': int(max_depth),
+                'subsample': 0.8,
+                'eta': 0.1,
+                'gamma': gamma,
+                'colsample_bytree': colsample_bytree}
+
+        cv_result = xgb.cv(params_, dtrain, num_boost_round=100, nfold=3)    
+        
+        # Bayesian optimization only knows how to maximize, not minimize, so return the negative RMSE
+        return -1.0 * cv_result['test-rmse-mean'].iloc[-1]
+    
     if loss == 'rmse':
         scoring = 'neg_mean_squared_error'
     elif loss == 'mae':
         scoring = 'neg_mean_absolute_error'
     
-    if (grid_search and random_search) or (grid_search and hyper) or (random_search and hyper):
+    if (grid_search and random_search) or (grid_search and bay_opt) or (random_search and bay_opt):
         return print('error: please select only one optimization method')
     
     model = xgb.XGBRegressor()
@@ -96,13 +115,10 @@ def xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_sea
         "gamma": np.arange(0, 20, 1), 
         "lambda": np.arange(0, 1, .1)
         }
-    # params['eval_metric'] = 'mae'
     
     if random_search:
-        # randomized_search = RandomizedSearchCV(model, params, n_iter=20, 
-        #                                 scoring=scoring, cv=3, verbose=3)
-        randomized_search = RandomizedSearchCV(model, params, n_iter=1,
-                                               scoring=scoring, verbose=3)
+        randomized_search = RandomizedSearchCV(model, params, n_iter=20, 
+                                        scoring=scoring, cv=3, verbose=3)
         randomized_search.fit(X_train, y_train)
         xgboost_reg = randomized_search.best_estimator_
         preds = xgboost_reg.predict(X_test)
@@ -112,7 +128,17 @@ def xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_sea
         gridded_search.fit(X_train, y_train)
         xgboost_reg = gridded_search.best_estimator_
         preds = xgboost_reg.predict(X_test)
-
+        
+    if bay_opt:
+        bay_optimization = BayesianOptimization(xgb_evaluate, {'max_depth': (3, 7), 
+                                             'gamma': (0, 1),
+                                             'colsample_bytree': (0.3, 0.9)})
+        bay_optimization.maximize(init_points=3, n_iter=5, acq='ei')
+        params = bay_optimization.res['max']['max_params']
+        params['max_depth'] = int(params['max_depth'])
+        xgboost_reg = xgb.train(params, dtrain, num_boost_round=250)
+        preds = xgboost_reg.predict(dtest)
+        
     # mae loss
     if loss == 'mae':
         mae = mean_absolute_error(y_test, preds)
@@ -141,10 +167,12 @@ if __name__ == '__main__':
         # '/Users/preston/Documents/GitHub/msdc-thesis/tool/results/1k_results.csv')
     data = csv_to_df('/Users/preston/Documents/GitHub/msdc-thesis/tool/temp')
     prepared_data = prepare_data(data)
-    pickle_df(data)
+    # pickle_df(data)
+    data.to_csv('all_sims.csv')
 
-    model = xgboost_regression(prepared_data, loss='mae', random_search=True, grid_search=False, hyper=False)
-    
+    model = xgboost_regression(prepared_data, loss='mae', random_search=False, grid_search=False, bay_opt=True)
+ 
+
     X_train = prepared_data['X_train']
     X_test = prepared_data['X_test']
     y_train = prepared_data['y_train']
@@ -152,6 +180,13 @@ if __name__ == '__main__':
     
     y_preds = model.predict(X_test)
     
+    # SHAP plot
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X_test)
+    
+    shap.summary_plot(shap_values, X_test)
+    
+    # Plotly scatter y=x
     fig = px.scatter(x=y_test, y=y_preds, labels={
                      'x': 'ground truth', 'y': 'prediction'})
     fig.add_shape(
@@ -162,7 +197,9 @@ if __name__ == '__main__':
     
     
         
-    # fig = plot_prediction_analysis(y_test, y_preds)
-    # fig.show
+    # fig1 = plot_prediction_analysis(y_test, y_preds)
+    # fig1.show
     
-    # plot_feature_importance(model)
+    # XGB feature importance (F scores)
+    fig2 = plot_feature_importance(model)
+    fig2.show

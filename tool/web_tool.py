@@ -145,8 +145,10 @@ def user_favorites(results, count, favorites): #TODO
         df = df.append(row, ignore_index=True)
     return fav_df
 
-# def increment_counter():
-#     count += 1
+
+def percent_change(old, new):
+    pc = round((new - old) / abs(old) * 100, 2)
+    return pc
     
 def web_tool():
     # inital values 
@@ -157,7 +159,7 @@ def web_tool():
     init_co2 = 2020.41
     init_cost = 1770.69
     
-    count = 0
+    # count = 0
     
     entry_dict = {
         'site': 3,
@@ -184,10 +186,16 @@ def web_tool():
     
     if 'results' not in st.session_state:
         st.session_state.results = pd.DataFrame()
-        st.session_state.results = st.session_state.results.append(
-            entry_dict, ignore_index=True)
+        # st.session_state.results = st.session_state.results.append(
+        #     entry_dict, ignore_index=True)
     if 'favorites' not in st.session_state:
         st.session_state.favorites = pd.DataFrame()
+        
+    if ' count' not in st.session_state:
+        st.session_state.count = 0
+        
+    def increment_counter():
+        st.session_state.count += 1
     
     st.title('DADU Energy Simulator')
     col1, col2 = st.columns(2)
@@ -261,15 +269,16 @@ def web_tool():
         
         # submit user prediction
         activate = st.form_submit_button(label='Predict', 
-                            help='Click \"Predict\" once you have selected your desired options')
+                            help='Click \"Predict\" once you have selected your desired options', on_click=increment_counter)
         
     if activate:
+        increment_counter()
         pred_input = create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr,
                                 frame, polyiso_t, cellulose_t, rear_setback, side_setback, structure_setback, assembly_r)
 
         eui = predict_eui(pred_input)
-        co2 = eui * 3.2 * size * 0.09290304 * kgCO2e
-        cost = eui * 3.2 * size * 0.09290304 * kwh_cost / 12
+        co2 = eui * 3.2 * size * 0.09290304 * kgCO2e #TODO check these calculations
+        cost = eui * 3.2 * size * 0.09290304 * kwh_cost / 12 #TODO check these calculations also
         eui_kwh = eui * 3.2
         
         rounded_eui = round(float(eui), 2)
@@ -299,7 +308,6 @@ def web_tool():
             'annual_carbon': rounded_co2,
             'annual_cost': rounded_cost
         }
-        count += 0
         outcomes = pd.DataFrame(outcomes_dict, index=[0])
         st.session_state.results = st.session_state.results.append(outcomes, ignore_index=True)
         # st.write(st.session_state.results)
@@ -339,130 +347,143 @@ def web_tool():
         st.write(st.session_state.results)
         
     with col1:
-        if count == 0:
+        if not activate:
+        # if count == 0:
             # st.metric('Predicted EUI', str(init_eui) + ' kBTU/sqft ' + str(init_eui_kwh) + ' kWh/m2')
-            st.metric('Predicted EUI', str(init_eui) + ' kBTU/sqft')
-            st.metric('Predicted Operational Carbon', str(init_co2) + ' kgCO2')
-            st.metric('Predicted monthly energy cost', '$' + str(init_cost / 12))     
-        elif count > 0:
-            eui_kwh = rounded_eui * 3.2
-            rounded_eui_kwh = round(float(eui_kwh), 2)
-            # st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft ' + str(rounded_eui_kwh) + ' kWh/m2')
-            st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft')
-            st.metric('Predicted Operational Carbon', str(rounded_co2) + ' kgCO2')
-            st.metric('Predicted monthly energy cost', '$' + str(rounded_cost))  
-            
+            # st.metric('Predicted EUI', str(init_eui) + ' kBTU/sqft')
+            # st.metric('Predicted Operational Carbon', str(init_co2) + ' kgCO2')
+            # st.metric('Predicted monthly energy cost', '$' + str(init_cost / 12)) 
+            st.metric('Predicted EUI', ' ')
+            st.write('\n')
+            st.write('\n')
+            st.metric('Predicted Operational Carbon', ' ')
+            st.write('\n')
+            st.write('\n')
+            st.metric('Predicted monthly energy cost', ' ') 
+            st.write('\n')
+            st.write('\n')
+            st.write(st.session_state.count)    
+        # elif count > 0:
+        if activate:
+            if st.session_state.count <= 1:
+                eui_kwh = rounded_eui * 3.2
+                rounded_eui_kwh = round(float(eui_kwh), 2)
+                # st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft ' + str(rounded_eui_kwh) + ' kWh/m2')
+                st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft')
+                st.metric('Predicted Operational Carbon', str(rounded_co2) + ' kgCO2')
+                st.metric('Predicted monthly energy cost', '$' + str(rounded_cost))  
+                st.write(st.session_state.count)
+            elif st.session_state.count > 1:
+                eui_kwh = rounded_eui * 3.2
+                rounded_eui_kwh = round(float(eui_kwh), 2)
+                
+                d_eui_kbtu = percent_change(
+                    st.session_state.results.iat[st.session_state.count, st.session_state.results.columns.get_loc('eui_kbtu')], rounded_eui)
+                # d_eui_kwh = percent_change(
+                #     st.session_state.results.iat[st.session_state.count, st.session_state.results.columns.get_loc('eui_kwh')], rounded_eui_kwh)
+                d_carbon = percent_change(
+                    st.session_state.results.iat[st.session_state.count, st.session_state.results.columns.get_loc('annual_carbon')], rounded_co2)
+                d_cost = percent_change(
+                    st.session_state.results.iat[st.session_state.count, st.session_state.results.columns.get_loc('annual_cost')], rounded_cost)
+                
+                # st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft ' + str(rounded_eui_kwh) + ' kWh/m2')
+                st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft', delta=d_eui_kbtu, delta_color='inverse')
+                st.metric('Predicted Operational Carbon', str(rounded_co2) + ' kgCO2', delta=d_carbon, delta_color='inverse')
+                st.metric('Predicted monthly energy cost', '$' + str(rounded_cost), delta=d_cost, delta_color='inverse')  
+                st.write(st.session_state.count)
     # with col3:
 
-    
-    # st.write() TODO add line graph with prediction (count) on x axis, predicted EUI and carbon on y axes (one on each side)
     advanced_toggle=True
     if advanced_toggle:
         with st.container():
-            # with st.expander('Advanced features', expanded=False):
-                # st.plotly_chart(para_coord)
-            # line_results = st.session_state.results[['eui_kbtu', 'annual_carbon', 'annual_cost']]
-            line_results = st.session_state.results['eui_kbtu']
-            line_results_carbon = st.session_state.results['annual_carbon']
-            # line_results['annual_carbon (metric tons)'] = line_results['annual_carbon'].div(1000)
-            # line_results['annual_cost (thousand dollars)'] = line_results['annual_cost'].div(1000)
-            # line_results = line_results[['eui_kbtu', 'annual_carbon (metric tons)', 'annual_cost (thousand dollars)']]
-            
-            double = make_subplots(specs=[[{"secondary_y": True}]])
-            
-            double.add_trace(go.Scatter(x=list(range(line_results.shape[0])),
-                                        y=line_results,
-                                        hovertext='kBTU/ft2',
+            if activate:
+
+                line_results = st.session_state.results['eui_kbtu']
+                line_results_carbon = st.session_state.results['annual_carbon']
+                
+                double = make_subplots(specs=[[{"secondary_y": True}]])
+                double.add_trace(go.Scatter(x=list(range(line_results.shape[0])),
+                                            y=line_results,
+                                            hovertext='kBTU/ft2',
+                                            hoverinfo='y+text',
+                                            marker={'size': 14},
+                                            mode='lines+markers',
+                                            # marker_symbol='line-ns',
+                                            # marker_line_width=2,
+                                            # name='EUI (kBTU/ft2)'
+                                            ),
+                                secondary_y=False
+                                )
+                
+                double.add_trace(go.Scatter(x=list(range(line_results_carbon.shape[0])),
+                                        y=line_results_carbon,
+                                        hovertext='kgCO2',
                                         hoverinfo='y+text',
-                                        marker={'size': 14},
+                                        marker={'size': 14,
+                                                'color': 'red'},
                                         mode='lines+markers',
                                         # marker_symbol='line-ns',
                                         # marker_line_width=2,
                                         # name='EUI (kBTU/ft2)'
                                         ),
-                             secondary_y=False
-                             )
-            
-            double.add_trace(go.Scatter(x=list(range(line_results_carbon.shape[0])),
-                                     y=line_results_carbon,
-                                     hovertext='kgCO2',
-                                     hoverinfo='y+text',
-                                     marker={'size': 14,
-                                             'color': 'red'},
-                                    mode='lines+markers',
-                                    # marker_symbol='line-ns',
-                                    # marker_line_width=2,
-                                    # name='EUI (kBTU/ft2)'
-                                    ),
-                             secondary_y=True
-                             )
-            
-            # line_results
-            # fig = go.FigureWidget()
-            double.update_xaxes(title_text='Result History')
-            
-            double.update_yaxes(title_text='EUI (kBTU/sqft)', secondary_y=False)
-            double.update_yaxes(title_text='kgCO2 (annual)', secondary_y=True)
-            
-            double.update_layout(
-                # title={'text':'Result History',
-                #        'x': .5,
-                #        'xanchor':'center'
-                # },
-                hovermode='x unified',
-                margin={'pad':10,
-                        'l':50,
-                        'r':50,
-                        'b':100,
-                        't':100},
-                font=dict(
-                    size=18,
-                    color="black"
+                                secondary_y=True
+                                )
+                
+                double.update_xaxes(title_text='Result History')
+                double.update_yaxes(title_text='EUI (kBTU/sqft)', secondary_y=False)
+                double.update_yaxes(title_text='kgCO2 (annual)', secondary_y=True)
+                
+                double.update_layout(
+                    # title={'text':'Result History',
+                    #        'x': .5,
+                    #        'xanchor':'center'
+                    # },
+                    hovermode='x unified',
+                    clickmode='event',
+                    margin={'pad':10,
+                            'l':50,
+                            'r':50,
+                            'b':100,
+                            't':100},
+                    font=dict(
+                        size=18,
+                        color="black"
+                    )
                 )
-            )
-            # scatter = double.data[0]
-            
-            # # define callback function to return to prediction at point
-            # def callback_predict(trace, points, selector):
-            #     ind = scatter.marker.x
-            #     prev_predict = st.session_state.results.loc(ind)
-            #     predict_eui(prev_predict)
-            #     st.write([trace, points, selector])
-            
-            # # callback function to return to selected value's prediction
-            # scatter.on_click(callback_predict)
+                # scatter = double.data[0]
+                
+                # # define callback function to return to prediction at point
+                # def callback_predict(trace, points, selector):
+                #     ind = scatter.marker.x
+                #     prev_predict = st.session_state.results.loc(ind)
+                #     predict_eui(prev_predict)
+                #     st.write([trace, points, selector])
+                
+                # # callback function to return to selected value's prediction
+                # scatter.on_click(callback_predict)
 
-            # display = go.Figure(scatter)
-            # display.update_layout(
-            #     # title='Result History', 
-            #     xaxis_title='Result',
-            #     yaxis_title='EUI (kBTU/sqft)',
-            #     hovermode='closest',
-            #     clickmode='event',
-            #     font=dict(
-            #         size=18,
-            #         color="black"
-            #         )
-            #     )  
-            # carbon_chart.update_layout(
-            #     xaxis_title='Result',
-            #     yaxis_title='Annual Carbon (kgCO2)',
-            # )
-            # st.plotly_chart(carbon_chart, use_container_width=True)
-            st.plotly_chart(double, use_container_width=True)
-            # st.plotly_chart(para_coord, use_container_width=True)
-            # line_chart = px.line(line_results, markers=True)
-            # st.line_chart(data=line_results)
-            
-            # st.plotly_chart(line_chart)
+                # display = go.Figure(scatter)
+                # display.update_layout(
+                #     # title='Result History', 
+                #     xaxis_title='Result',
+                #     yaxis_title='EUI (kBTU/sqft)',
+                #     hovermode='closest',
+                #     clickmode='event',
+                #     font=dict(
+                #         size=18,
+                #         color="black"
+                #         )
+                #     )  
+                # carbon_chart.update_layout(
+                #     xaxis_title='Result',
+                #     yaxis_title='Annual Carbon (kgCO2)',
+                # )
+                
+                st.plotly_chart(double, use_container_width=True)
 
 st.set_page_config(layout='wide')
     
-    
-    
-    #add option to use button to predict instead of real-time
-    #add st.metric, show delta from last simulation ran- need to add button then, dont show delta if no button before prediction
-    #add download option for output dataframe
+#TODO add st.metric, show delta from last simulation ran- need to add button then, dont show delta if no button before prediction
 
 if __name__=='__main__':
     for i in range(50): print('')
