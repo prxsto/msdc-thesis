@@ -56,9 +56,11 @@ def plot_prediction_analysis(y, y_pred):
 
 
 def prepare_data(df):
-    labels_drop = ['filename', 'num_adiabatic', 'setback', 'rear_setback', 'side_setback',
-                'structure_setback', 'area_buildable', 'surf_tot', 'cooling', 'heating',
-                'lighting', 'equipment', 'water', 'eui_kwh', 'carbon', 'kg_CO2e']
+    data['surf_vol_ratio'] = data['surf_tot'] / data['volume']
+    labels_drop = ['filename', 'num_adiabatic', 'frame', 'polyiso_t', 'cellulose_t', 
+                   'rear_setback', 'side_setback', 'structure_setback', 'area_buildable',
+                   'surf_tot', 'surf_glaz', 'surf_opaq', 'volume', 'cooling', 'heating', 
+                   'lighting', 'equipment', 'water', 'eui_kwh', 'carbon', 'kg_CO2e']
 
     data.drop(labels=labels_drop, axis=1, inplace=True)
     print(data.shape)
@@ -130,13 +132,24 @@ def xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_sea
         preds = xgboost_reg.predict(X_test)
         
     if bay_opt:
-        bay_optimization = BayesianOptimization(xgb_evaluate, {'max_depth': (3, 7), 
+        bay_optimization = BayesianOptimization(xgb_evaluate, {
+                                            'max_depth': (3, 7), 
                                              'gamma': (0, 1),
-                                             'colsample_bytree': (0.3, 0.9)})
-        bay_optimization.maximize(init_points=3, n_iter=5, acq='ei')
-        params = bay_optimization.res['max']['max_params']
-        params['max_depth'] = int(params['max_depth'])
-        xgboost_reg = xgb.train(params, dtrain, num_boost_round=250)
+                                             'colsample_bytree': (0.3, 0.9)},
+                                            random_state=9,
+                                            verbose=3)
+        bay_optimization.maximize(init_points=3, n_iter=10, acq='ei')
+        # params = bay_optimization.res['max']['max_params']
+        targets = []
+        for i, rs in enumerate(bay_optimization.res):
+            targets.append(rs["target"])
+        best_params = bay_optimization.res[targets.index(max(targets))]["params"]
+        best_params["max_depth"] = int(best_params["max_depth"])
+        print(best_params)
+        # best_params = bay_optimization.max['params']
+        # best_params['max_depth'] = int(params['max_depth'])
+        # print(best_params)
+        xgboost_reg = xgb.train(best_params, dtrain, num_boost_round=250)
         preds = xgboost_reg.predict(dtest)
         
     # mae loss
@@ -149,12 +162,13 @@ def xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_sea
         rmse = np.sqrt(mean_squared_error(y_test, preds))
         print("RMSE: %f" % (rmse))
 
-    # input("press enter if you are happy with error and would like to pickle model")
+    if pickle:
+        input("press enter if you are happy with error and would like to pickle model")
 
-    # pickle_out = open('xgboost_reg.pkl','wb')
-    # pickle.dump(xgboost_reg, pickle_out)
-    # pickle_out.close()
-    # print('Model has been pickled')
+        pickle_out = open('xgboost_reg.pkl','wb')
+        pickle.dump(xgboost_reg, pickle_out)
+        pickle_out.close()
+        print('Model has been pickled')
 
     return xgboost_reg
     
@@ -165,12 +179,19 @@ if __name__ == '__main__':
         
     # data = pd.read_csv(
         # '/Users/preston/Documents/GitHub/msdc-thesis/tool/results/1k_results.csv')
-    data = csv_to_df('/Users/preston/Documents/GitHub/msdc-thesis/tool/temp')
+    
+    # read csvs and combine
+    # data = csv_to_df('/Users/preston/Documents/GitHub/msdc-thesis/tool/temp')
+    # data.to_csv('all_sims.csv')
+    
+    # read combined csv into df
+    data = pd.read_csv('all_sims.csv')
+    data.drop('Column1', axis=1, inplace=True)
+    # print(data.head)
+    # print(data.isnull().sum())
     prepared_data = prepare_data(data)
-    # pickle_df(data)
-    data.to_csv('all_sims.csv')
-
-    model = xgboost_regression(prepared_data, loss='mae', random_search=False, grid_search=False, bay_opt=True)
+    
+    model = xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_search=False, bay_opt=True)
  
 
     X_train = prepared_data['X_train']
@@ -178,7 +199,9 @@ if __name__ == '__main__':
     y_train = prepared_data['y_train']
     y_test = prepared_data['y_test']
     
-    y_preds = model.predict(X_test)
+    # print(X_train.columns)
+    X_test_DM = xgb.DMatrix(X_test)
+    y_preds = model.predict(X_test_DM)
     
     # SHAP plot
     explainer = shap.TreeExplainer(model)
@@ -197,8 +220,8 @@ if __name__ == '__main__':
     
     
         
-    # fig1 = plot_prediction_analysis(y_test, y_preds)
-    # fig1.show
+    fig1 = plot_prediction_analysis(y_test, y_preds)
+    fig1.show
     
     # XGB feature importance (F scores)
     fig2 = plot_feature_importance(model)
