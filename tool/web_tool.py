@@ -19,9 +19,6 @@ from math import sqrt
 
 # from filename import preston_plotter
 
-
-# from studio2021 import streamlit_dictionaries
-
 # load pickled xgboost model to predict EUI
 pickle_in = open('xgboost_reg.pkl', 'rb')
 regressor = pickle.load(pickle_in)
@@ -155,7 +152,15 @@ def percent_change(old, new):
     return pc
     
 def web_tool():
+    st.title('DADU Energy Simulator')
+    col1, col2 = st.columns([1, 2])
 
+    with col1:
+        with st.expander('Documentation'):
+            st.markdown('asdf \n asdogihasodhgaspodighaosdhaiosdgaips \n' +
+                        'asidubgaiosudbgaosdngoiaSDDG \n aosidhgaoishdgoaisdgpia \n' +
+                        'asduigahsdoiughasoidghasipdgasdg') # TODO
+        st.header('Results')
     if 'results' not in st.session_state:
         st.session_state.results = pd.DataFrame()
         
@@ -173,18 +178,6 @@ def web_tool():
         rounded_eui_kwh = st.session_state.results.iat[count - 1, st.session_state.results.columns.get_loc('eui_kwh')]
         rounded_co2 = st.session_state.results.iat[count - 1, st.session_state.results.columns.get_loc('annual_carbon')]
         rounded_cost = st.session_state.results.iat[count - 1, st.session_state.results.columns.get_loc('annual_cost')]
-    
-    st.title('DADU Energy Simulator')
-    col1, col2 = st.columns([1, 2])
-    col1.header('Results')
-    # col2.header('Tools')
-  
-    
-    # st.markdown(f'''
-    #     <style>
-    #     section[data-testid="stSidebar"] .css-ng1t4o {{width: 14rem;}}
-    #     </style>
-    # ''',unsafe_allow_html=True)
     
     # create sidebar form
     st.sidebar.header('Prediction Input')
@@ -243,12 +236,36 @@ def web_tool():
         surf_vol_ratio = surf_area / volume
         
         # show r-assembly value
-        st.write('R-assembly:', str(assembly_r), '(units)') #TODO
+        # st.write('R-assembly:', str(assembly_r), '(units)') #TODO
         
         # submit user prediction
         activate = st.form_submit_button(label='Predict', 
                             help='Click \"Predict\" once you have selected your desired options')
+        # if st.button('Favorite', help=
+        #     'Add to list of favorite combinations to easily return to result'):
+        # csv_favs = convert_df(user_favorites(results, count))
+        # pass #TODO
+    
+    with st.sidebar:    
+        now = datetime.datetime.now()
+        file_name_all = 'results_' + (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'
+        csv_all = convert_df(st.session_state.results)
+        st.download_button('Download All Results',
+                        data=csv_all, file_name=file_name_all,
+                        help='Download a .CSV spreadsheet with all simulation data from current session')
+
+        # file_name_favs = 'favorites_' + \
+        #     (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'  # TODO
+        # csv_favs = convert_df(st.session_state.favorites)
+        # st.download_button('Download Favorited Results',
+        #                 data=csv_favs, file_name=file_name_favs)
         
+        # clear results
+        clear_res = st.button('Clear results',
+                              help='Delete all previous prediction data from current session')
+        advanced_toggle = st.checkbox('Advanced view',
+                                    help='Enables advanced user view')
+            
     if activate:
         count = len(st.session_state.results.index) + 1
             
@@ -289,15 +306,11 @@ def web_tool():
     with col1:
         if count == 0:
             st.metric('Predicted EUI', ' ')
-            st.write('\n')
-            st.write('\n')
+            st.write('\n' + '\n')
             st.metric('Predicted Operational Carbon', ' ')
-            st.write('\n')
-            st.write('\n')
+            st.write('\n' + '\n')
             st.metric('Predicted monthly energy cost', ' ') 
-            st.write('\n')
-            st.write('\n')
-            st.write(count)    
+            st.write('\n' + '\n')
             
         if count == 1:
             eui_kwh = rounded_eui * 3.2
@@ -305,7 +318,6 @@ def web_tool():
             st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft')
             st.metric('Predicted Operational Carbon', str(rounded_co2) + ' kgCO2')
             st.metric('Predicted monthly energy cost', '$' + str(rounded_cost))  
-            st.write(count)
             
         if count > 1:
             eui_kwh = rounded_eui * 3.2
@@ -321,30 +333,6 @@ def web_tool():
             st.metric('Predicted EUI', str(rounded_eui) + ' kBTU/sqft', delta=str(d_eui_kbtu) + ' %', delta_color='inverse')
             st.metric('Predicted annual operational carbon', str(rounded_co2) + ' kgCO2', delta=str(d_carbon) + ' %', delta_color='inverse')
             st.metric('Predicted monthly energy cost', '$' + str(rounded_cost), delta=str(d_cost) + ' %', delta_color='inverse')  
-       
-        # if st.button('Favorite', help=
-        #     'Add to list of favorite combinations to easily return to result'):
-        # csv_favs = convert_df(user_favorites(results, count))
-        # pass #TODO
-        
-        now = datetime.datetime.now()
-        file_name_all = 'results_' + (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'
-        csv_all = convert_df(st.session_state.results)
-        st.download_button('Download All Results',
-                        data=csv_all, file_name=file_name_all,
-                        help='Download a .CSV spreadsheet with all simulation data from current session')
-
-        # file_name_favs = 'favorites_' + \
-        #     (now.strftime('%Y-%m-%d_%H_%M')) + '.csv'  # TODO
-        # csv_favs = convert_df(st.session_state.favorites)
-        # st.download_button('Download Favorited Results',
-        #                 data=csv_favs, file_name=file_name_favs)
-        
-        # clear results
-        clear_res = st.button('Clear results',
-                              help='Delete all previous prediction data from current session')
-        advanced_toggle = st.checkbox('Advanced view',
-                                    help='Enables advanced user view')
         
         
     # model viewer    
@@ -381,6 +369,7 @@ def web_tool():
                                  marker_color=color,
                                  text=color,
                                  mode='markers',
+                                #  hovertemplate='wwr: %{wwr}, floor area: %{size}',
                                  marker= {
                                      'size': 12,
                                      'colorscale': 'Viridis',
@@ -462,14 +451,15 @@ def web_tool():
 
     if advanced_toggle:
         st.write(st.session_state.results)
-        
+            
+# /Users/preston/Documents/GitHub/msdc-thesis/tool/results
 st.set_page_config(layout='wide')
 
 if __name__=='__main__':
     for i in range(50): print('')
     web_tool()
 
-# to run: streamlit run /Users/preston/Documents/GitHub/msdc-thesis/tool/web_tool.py
+# to run: streamlit run /Users/preston/Documents/GitHub/msdc-thesis/tool/web_tool.py --theme
 
 # TODO
 # ask tomas about discrepency of EUI between 1 and 2 story with everything else constant
