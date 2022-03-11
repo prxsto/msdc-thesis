@@ -1,4 +1,3 @@
-from matplotlib.pyplot import figimage
 import plotly.graph_objects as go
 from math import sqrt
 

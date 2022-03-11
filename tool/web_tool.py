@@ -445,7 +445,6 @@ def web_tool():
     if advanced_toggle:
         st.write(st.session_state.results)
             
-# /Users/preston/Documents/GitHub/msdc-thesis/tool/results
 st.set_page_config(layout='wide')
 
 if __name__=='__main__':
