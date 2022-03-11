@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import pickle
+import plotly
 import plotly.graph_objects as go
 import xgboost as xgb
 import datetime
