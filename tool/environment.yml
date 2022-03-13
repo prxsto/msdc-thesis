@@ -4,3 +4,10 @@ channels:
 dependencies:
   - compas
   - plotly
+  - xgboost
+  - bayes_opt
+  - tqdm
+  - shap
+  - numpy
+  - pandas
+  - sklearn
