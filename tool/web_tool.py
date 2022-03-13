@@ -452,7 +452,7 @@ if __name__=='__main__':
     for i in range(50): print('')
     web_tool()
 
-# to run: streamlit run /Users/preston/Documents/GitHub/msdc-thesis/tool/web_tool.py 
+# to run: streamlit run /Users/prxsto/Documents/GitHub/msdc-thesis/tool/web_tool.py 
 
 # TODO
 # ask tomas about discrepency of EUI between 1 and 2 story with everything else constant
