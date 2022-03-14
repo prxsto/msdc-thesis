@@ -5,9 +5,9 @@ dependencies:
   - compas
   - plotly
   - xgboost
-  - bayes_opt
+  - bayesian-optimization
   - tqdm
   - shap
   - numpy
   - pandas
-  - sklearn
+  - scitkit-learn
