@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import pickle
-import plotly
 import plotly.graph_objects as go
 import xgboost as xgb
 import datetime
@@ -9,9 +8,9 @@ import make_mesh
 from math import sqrt
 
 # import sys
-# sys.path.append('presrton/stuff/here')
+# prestonlibrary = sys.path.append('presrton/stuff/here')
 
-# from filename import preston_plotter
+# from prestonlibrary import preston_plotter
 
 # load pickled xgboost model to predict EUI
 pickle_in = open('xgboost_reg.pkl', 'rb')
