@@ -12,10 +12,6 @@ from math import sqrt
 
 # from prestonlibrary import preston_plotter
 
-# load pickled xgboost model to predict EUI
-pickle_in = open('xgboost_reg.pkl', 'rb')
-regressor = pickle.load(pickle_in)
-
 # load pickled parallel coordinate chart
 pickle_in = open('para_coord.pkl', 'rb')
 para_coord = pickle.load(pickle_in)
@@ -59,6 +55,13 @@ plotd = {
     'Cost': 'annual_cost'
 }
 
+@st.cache
+def load_model():
+    # load pickled xgboost model to predict EUI
+    pickle_in = open('xgboost_reg.pkl', 'rb')
+    regressor = pickle.load(pickle_in)
+    return regressor
+    
 @st.cache
 def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
@@ -111,10 +114,9 @@ def create_input_df(site, size, footprint, height, num_stories, num_units, inf_r
         'surf_vol_ratio': [surf_vol_ratio]
     }
     pred_input = pd.DataFrame(inputs)
-    print(pred_input.shape)
     return pred_input
 
-def predict_eui(pred_input):
+def predict_eui(pred_input, model):
     """Predicts energy use intensity of DADU from user input.
 
     Args:
@@ -124,7 +126,7 @@ def predict_eui(pred_input):
         prediction (float): energy use intensity (EUI; kBTU/ft^2)
     """
     pred_inputDM = xgb.DMatrix(pred_input)
-    prediction = regressor.predict(pred_inputDM)
+    prediction = model.predict(pred_inputDM)
     return prediction
 
 def user_favorites(results, count, favorites): #TODO
@@ -144,7 +146,7 @@ def percent_change(old, new):
     pc = round((new - old) / abs(old) * 100, 2)
     return pc
     
-def web_tool():
+def web_tool(model):
     st.title('DADU Energy Simulator')
     col1, col2 = st.columns([1, 2])
 
@@ -265,7 +267,7 @@ def web_tool():
         pred_input = create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr,
                                 setback, assembly_r, surf_vol_ratio)
 
-        eui = predict_eui(pred_input)
+        eui = predict_eui(pred_input, model)
         co2 = eui * 3.2 * size * 0.09290304 * kgCO2e 
         cost = eui * 3.2 * size * 0.09290304 * kwh_cost / 12 
         eui_kwh = eui * 3.2
@@ -352,7 +354,6 @@ def web_tool():
             
         if count > 0:
             
-            # st.write('haha')
             x = st.session_state.results[plotd[x_axis_data]]
             y = st.session_state.results[plotd[y_axis_data]]
             color = st.session_state.results[plotd[colorby]]
@@ -387,58 +388,6 @@ def web_tool():
                                 )
             st.plotly_chart(fig, use_container_width=True)
             
-            
-            # line_results = st.session_state.results['eui_kbtu']
-            # line_results_carbon = st.session_state.results['annual_carbon']
-            
-            # double = make_subplots(specs=[[{"secondary_y": True}]])
-            # double.add_trace(go.Scatter(x=list(range(line_results.shape[0])),
-            #                             y=line_results,
-            #                             hovertext='kBTU/ft2',
-            #                             hoverinfo='y+text',
-            #                             marker={'size': 14},
-            #                             mode='lines+markers',
-            #                             # marker_symbol='line-ns',
-            #                             # marker_line_width=2,
-            #                             # name='EUI (kBTU/ft2)'
-            #                             ),
-            #                 secondary_y=False
-            #                 )
-            
-            # double.add_trace(go.Scatter(x=list(range(line_results_carbon.shape[0])),
-            #                         y=line_results_carbon,
-            #                         hovertext='kgCO2',
-            #                         hoverinfo='y+text',
-            #                         marker={'size': 14,
-            #                                 'color': 'red'},
-            #                         mode='lines+markers',
-            #                         # marker_symbol='line-ns',
-            #                         # marker_line_width=2,
-            #                         # name='EUI (kBTU/ft2)'
-            #                         ),
-            #                 secondary_y=True
-            #                 )
-            
-            # double.update_xaxes(title_text='Result History')
-            # double.update_yaxes(title_text='EUI (kBTU/sqft)', secondary_y=False)
-            # double.update_yaxes(title_text='kgCO2 (annual)', secondary_y=True)
-            
-            # double.update_layout(
-            #     hovermode='x unified',
-            #     clickmode='event',
-            #     margin={'pad':10,
-            #             'l':50,
-            #             'r':50,
-            #             'b':100,
-            #             't':100},
-            #     font=dict(
-            #         size=18,
-            #         color="black"
-            #     )
-            # )
-            
-            # st.plotly_chart(double, use_container_width=True)
-            
     if clear_res:
         st.session_state.results = st.session_state.results[0:0]
 
@@ -449,7 +398,8 @@ st.set_page_config(layout='wide')
 
 if __name__=='__main__':
     for i in range(50): print('')
-    web_tool()
+    model = load_model()
+    web_tool(model)
 
 # to run: streamlit run /Users/prxsto/Documents/GitHub/msdc-thesis/tool/web_tool.py 
 
