@@ -55,7 +55,7 @@ plotd = {
     'Cost': 'annual_cost'
 }
 
-@st.cache
+@st.cache(hash_funcs={xgb.core.Booster: lambda _: None})
 def load_model():
     # load pickled xgboost model to predict EUI
     pickle_in = open('xgboost_reg.pkl', 'rb')
