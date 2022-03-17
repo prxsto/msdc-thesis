@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.model_selection import RandomizedSearchCV
 from bayes_opt import BayesianOptimization
+import plotly as plt
 import plotly.express as px
 import numpy as np
 from tqdm import tqdm

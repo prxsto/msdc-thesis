@@ -152,9 +152,7 @@ def web_tool(model):
 
     with col1:
         with st.expander('Documentation'):
-            st.markdown('asdf \n asdogihasodhgaspodighaosdhaiosdgaips \n' +
-                        'asidubgaiosudbgaosdngoiaSDDG \n aosidhgaoishdgoaisdgpia \n' +
-                        'asduigahsdoiughasoidghasipdgasdg') # TODO
+            st.markdown('Check back soon') # TODO
         st.header('Results')
     if 'results' not in st.session_state:
         st.session_state.results = pd.DataFrame()
