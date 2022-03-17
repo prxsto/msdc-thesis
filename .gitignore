@@ -1,3 +1,16 @@
 
+# filetypes
+*.DS_Store
+*.html
+*.ipynb
+*.vscode
+*.json
+
+# directories
+/pre
+/docs
+/presentation
+/writing
+
 .DS_Store
 .DS_Store
