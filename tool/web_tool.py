@@ -146,6 +146,13 @@ def percent_change(old, new):
     return pc
     
 def web_tool(model):
+    hide_streamlit_style = """
+            <style>
+            footer {visibility: hidden;}
+            </style>
+            """
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+    
     st.title('DADU Energy Simulator')
     col1, col2 = st.columns([1, 2])
 
@@ -390,13 +397,6 @@ def web_tool(model):
 
     if advanced_toggle:
         st.write(st.session_state.results)
-
-hide_streamlit_style = """
-            <style>
-            footer {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
             
 st.set_page_config(layout='wide')
 
