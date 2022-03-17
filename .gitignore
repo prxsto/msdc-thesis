@@ -5,12 +5,13 @@
 *.ipynb
 *.vscode
 *.json
+**.csv
+!all_sims.csv
 
 # directories
 /pre
 /docs
 /presentation
 /writing
-
-.DS_Store
-.DS_Store
+/temp
+/sim_output
