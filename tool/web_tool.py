@@ -87,8 +87,7 @@ def calc_r(polyiso_t, cellulose_t):
     
     return assembly_r
 
-def create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr, 
-                    setback, assembly_r, surf_vol_ratio):
+def create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr, setback, assembly_r, surf_vol_ratio):
     """Takes user input from Streamlit sliders and creates 1D dictionary from variables, then converts to DataFrame
 
     Args:
@@ -391,8 +390,16 @@ def web_tool(model):
 
     if advanced_toggle:
         st.write(st.session_state.results)
+
+hide_streamlit_style = """
+            <style>
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
             
 st.set_page_config(layout='wide')
+
 
 if __name__=='__main__':
     for i in range(50): print('')
