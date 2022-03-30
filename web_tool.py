@@ -60,7 +60,7 @@ def load_model():
     """ 
     Loads pickled xgboost model to predict EUI
     """
-    os.chdir(r'/Users/prxsto/Documents/GitHub/msdc-thesis')
+    # os.chdir(r'/Users/prxsto/Documents/GitHub/msdc-thesis')
     pickle_in = open('xgboost_reg.pkl', 'rb')
     regressor = pickle.load(pickle_in)
     return regressor
