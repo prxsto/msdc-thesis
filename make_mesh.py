@@ -1,31 +1,6 @@
 import plotly.graph_objects as go
 from math import sqrt
 
-# def vector_from_points(a, b):
-
-#     return [b[0] - a[0], b[1] - a[1], b[2] - a[2]]
-
-# def length_vector(vector):
-    
-#     return vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2
-
-# def vector_unitize(vector):
-    
-#     l = length_vector(vector)
-#     vx = vector[0] / l
-#     vy = vector[1] / l 
-#     vz = vector[2] / l 
-    
-#     uvector = [vx, vy, vz]
-#     return uvector
-
-# def add_vectors(v1, v2):
-    
-#     return [a + b for (a, b) in zip(v1, v2)]
-
-# def scale_vector(vector, scale):
-    
-#     return [axis * scale for axis in vector]
 def midpoint(p1, p2):
     x = (p1[0] + p2[0]) / 2
     y = (p1[1] + p2[1]) / 2
@@ -33,21 +8,6 @@ def midpoint(p1, p2):
     return [x, y, z]
 
 def make_window(pts, w, h, wwr, typology):
-    
-    # p0 = [0, 0, 0]
-    # p1 = [w, 0, 0]
-    # p2 = [w, 0, h]
-    # p3 = [0, 0, h]
-    
-    # pts = [p0, p1, p2, p3]
-
-    # cp = [w /2., 0, h /2.]
-
-    # x = vector_from_points(pts[0], pts[1])
-    # z = vector_from_points(pts[0], pts[3])
-
-    # x = vector_unitize(x)
-    # z = vector_unitize(z)
 
     wall_area = w * h
     glaz_area = wall_area * wwr
@@ -56,12 +16,6 @@ def make_window(pts, w, h, wwr, typology):
     h_gap = (w - win_width) / 2.
     v_gap = (h - win_height) / 2.
 
-    # vx = scale_vector(x, w/2)
-    # vz = scale_vector(z, h/2)
-
-    # v = add_vectors(vx, vz)
-
-    # new_pt = add_vectors(cp, v)
     if typology == 1:
         
         # south
@@ -582,15 +536,15 @@ def make_mesh(footprint, wwr, num_stories, num_units):
     fig.update_layout(showlegend=False,
                       hovermode=False,
                       scene_camera=dict(eye=dict(x=3, y=1.5, z=.8)),
-                    #   camera_projection={'type':2},
+                    #   camera_eye={'x':2, 'y':2, 'z':2},
                       margin={'pad':0,
                             'l':0,
                             'r':0,
                             'b':0,
                             't':0},
-                      autosize=True
+                    #   autosize=True
                     #   width=600,
-                    #   height=550,
+                      height=375,
                     #   yaxis_fixedrange=True,
                     #   xaxis_fixedrange=True
                       )
