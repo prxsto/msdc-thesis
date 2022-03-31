@@ -2,11 +2,3 @@
 ./csv
 ./json
 ./txt
-
-# ignore folders
-/pre
-/docs
-/presentation
-/writing
-/temp
-/sim_output
