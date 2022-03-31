@@ -1,3 +1,9 @@
+# ignore filetypes
+./csv
+./json
+./txt
+
+# ignore folders
 /pre
 /docs
 /presentation
