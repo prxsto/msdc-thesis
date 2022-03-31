@@ -1,4 +1,9 @@
+# ignore folders
+/data
+/gh
+/rhino
+
 # ignore filetypes
-./csv
-./json
-./txt
+*/csv
+*/json
+*/txt
