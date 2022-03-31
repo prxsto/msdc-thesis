@@ -2,6 +2,7 @@
 /data
 /gh
 /rhino
+/src
 
 # ignore filetypes
 */csv
