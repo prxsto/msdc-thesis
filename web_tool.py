@@ -459,10 +459,8 @@ def web_tool(model):
     with col2:    
         mesh = make_mesh.make_mesh(size, wwr, num_stories, num_units)
         st.plotly_chart(mesh, use_container_width=True)
-        
-    # under advanced, allow use to see their prediction plotted against all simulated data for validation
-    # plot with selectable axes to compare results // pareto frontier
-    # allow hover to show design parameters if unable to set sliders and things to input values when result is selected
+
+    # TODO allow hover to show design parameters if unable to set sliders and things to input values when result is selected
     
     with st.container():
         # st.subheader('Plot options:')
