@@ -173,11 +173,8 @@ def xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_sea
     
 
 if __name__ == '__main__':
-    # for i in range(50):
-    #     print('')
-        
-    # data = pd.read_csv(
-        # '/Users/preston/Documents/GitHub/msdc-thesis/tool/results/1k_results.csv')
+    for i in range(50):
+        print('')
     
     # read csvs and combine
     # data = csv_to_df('/Users/preston/Documents/GitHub/msdc-thesis/tool/temp')
@@ -186,8 +183,6 @@ if __name__ == '__main__':
     # read combined csv into df
     data = pd.read_csv('all_sims.csv')
     data.drop('Column1', axis=1, inplace=True)
-    # print(data.head)
-    # print(data.isnull().sum())
     prepared_data = prepare_data(data)
     
     model = xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_search=False, bay_opt=True)
