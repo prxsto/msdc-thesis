@@ -175,14 +175,13 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
     Returns:
         fig (Plotly figure): Scatterplot showing user-selected prediction data
     """
-    # x_label = str(x_axis_data)
-    # y_label = str(y_axis_data)
     scatter = go.Scattergl(x=x, 
                         y=y,
                         marker_color=color,
                         text=color,
                         mode='markers',
-                        hoverinfo='x',
+                        hovertext=y_axis_data
+                        hoverinfo='y',
                         marker= {
                             'size': 12,
                             'colorscale': 'Viridis',
