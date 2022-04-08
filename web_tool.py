@@ -182,7 +182,7 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
                         marker_color=color,
                         text=color,
                         mode='markers',
-                        # hovertemplate=f'<br>{x_label}:%{x}<br>{y_label}:%{y}',
+                        hoverinfo='x',
                         marker= {
                             'size': 12,
                             'colorscale': 'Viridis',
