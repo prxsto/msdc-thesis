@@ -258,14 +258,6 @@ def web_tool(model):
     st.markdown(hide_collapse, unsafe_allow_html=True)
     
     st.title('DADU Impact Predictor')    
-    with st.expander('Documentation'):
-        st.markdown('Source code available here: https://github.com/prxsto/msdc-thesis \n \n')
-        st.markdown('How to use: \n')
-        st.markdown('1. Select design parameter values in the left sidebar \n')
-        st.markdown('2. Choose "Predict" to view results and visualize simple model \n')
-        st.markdown('3. Compare results using scatter plot below \n')
-        st.markdown('4. Click "Download results" to download a spreadsheet containing all inputs and results \n \n')
-        st.markdown('Note: energy and kgCO2 values in downloadable spreadsheet are *annual*')
     col1, col2 = st.columns([1, 2])
 
     with col1:
@@ -278,6 +270,7 @@ def web_tool(model):
     # constants
     kgCO2e = .135669
     kwh_cost = .1189
+    mshp_cop = 3.5 # average COP value of mini split heat pump systems in use in most DADUs in PNW
     
     if count >= 1:
         rounded_eui = st.session_state.results.iat[count - 1, st.session_state.results.columns.get_loc('eui_kbtu')]
@@ -388,13 +381,13 @@ def web_tool(model):
         pred_input = create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr,
                                 setback, assembly_r, surf_vol_ratio)
 
-        eui = predict_eui(pred_input, model)
+        eui = predict_eui(pred_input, model) / mshp_cop
         # convert kBTU/ft2 to kWh/m2
         eui_kwh = eui * 3.2 
         # convert kBTU/ft2 to kWh, then multiply by CO2 equivalent of grid (Seattle)
         co2 = eui_kwh * size * 0.09290304 * kgCO2e 
-        # convert kBTU/ft2 to kWh, then multiply by average cost per kWh (Seattle), then divide by a COP of 3.5 (MSHP)
-        cost = eui_kwh * size * 0.09290304 * kwh_cost / 3.5 
+        # convert kBTU/ft2 to kWh, then multiply by average cost per kWh (Seattle)
+        cost = eui_kwh * size * 0.09290304 * kwh_cost
         
         rounded_eui = round(float(eui), 2)
         rounded_eui_kwh = round(float(eui_kwh), 2)
@@ -484,6 +477,9 @@ def web_tool(model):
                 x_axis_data,
                 y_axis_data
                 )
+            # fig.update_layout(
+            #     hoverdata=
+            # )
             st.plotly_chart(fig, use_container_width=True)
             
     if clear_res:
@@ -491,6 +487,15 @@ def web_tool(model):
 
     if advanced_toggle:
         st.dataframe(st.session_state.results)
+        
+    with st.expander('Documentation'):
+        st.markdown('Source code available here: https://github.com/prxsto/msdc-thesis \n \n')
+        st.markdown('How to use: \n')
+        st.markdown('1. Select design parameter values in the left sidebar \n')
+        st.markdown('2. Choose "Predict" to view results and visualize simple model \n')
+        st.markdown('3. Compare results using scatter plot below \n')
+        st.markdown('4. Click "Download results" to download a spreadsheet containing all inputs and results \n \n')
+        st.markdown('Note: energy and kgCO2 values in downloadable spreadsheet are *annual*')
             
 st.set_page_config(layout='wide')
 
