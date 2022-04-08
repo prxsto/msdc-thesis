@@ -180,7 +180,7 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
                         marker_color=color,
                         text=color,
                         mode='markers',
-                    #  hovertemplate='wwr: %{wwr}, floor area: %{size}',
+                        hovertemplate='{x_axis_data}: %{x}, {y_axis_data}: %{y}',
                         marker= {
                             'size': 12,
                             'colorscale': 'Viridis',
