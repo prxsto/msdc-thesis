@@ -180,8 +180,8 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
                         marker_color=color,
                         text=color,
                         mode='markers',
-                        hovertext=y_axis_data,
-                        hoverinfo='y',
+                        hovertext=(y_axis_data + ': '),
+                        hoverinfo='y+text',
                         marker= {
                             'size': 12,
                             'colorscale': 'Viridis',
