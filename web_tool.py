@@ -180,7 +180,7 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
                         marker_color=color,
                         text=color,
                         mode='markers',
-                        hovertemplate='{x_axis_data}: %{x}, {y_axis_data}: %{y}',
+                        hovertemplate='%{x_axis_data}: %{x}, %{y_axis_data}: %{y}',
                         marker= {
                             'size': 12,
                             'colorscale': 'Viridis',
@@ -359,7 +359,7 @@ def web_tool(model):
                         '1 year',
                         '5 years',
                         '10 years'],
-                value='1 month',
+                value='1 year',
                 )
             duration_num = durationd[duration]
             advanced_toggle = st.checkbox('Show dataframe',
