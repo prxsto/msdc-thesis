@@ -460,7 +460,7 @@ def web_tool(model):
     with col1:
         
         if count == 0:
-            st.metric('Predicted EUI (annual)', None)
+            st.metric('Predicted EUI (energy use intensity)', None)
             st.write('\n' + '\n')
             st.metric('Predicted operational carbon (' + duration + ')', None)
             st.write('\n' + '\n')
@@ -470,7 +470,7 @@ def web_tool(model):
         if count == 1:
             display_co2 = round(float(rounded_co2 * duration_num), 2 )
             display_cost = round(float(rounded_cost * duration_num), 2)
-            st.metric('Predicted EUI (annual)', str(rounded_eui) + ' kBTU/ft2')
+            st.metric('Predicted EUI (energy use intensity)', str(rounded_eui) + ' kBTU/ft2')
             st.metric('Predicted operational carbon (' + duration + ')', str(display_co2) + ' kgCO2')
             st.metric('Predicted  energy cost (' + duration + ')', '$' + str(display_cost))  
             
@@ -486,7 +486,7 @@ def web_tool(model):
             d_cost = percent_change(
                 round(float(st.session_state.results.iat[count - 2, st.session_state.results.columns.get_loc('annual_cost')] * duration_num), 2), 
                 display_cost)
-            st.metric('Predicted EUI (annual)', ("%.2f" % rounded_eui) + ' kBTU/ft2', delta=("%.1f" % d_eui_kbtu) + ' %', delta_color='inverse')
+            st.metric('Predicted EUI (energy use intensity)', ("%.2f" % rounded_eui) + ' kBTU/ft2', delta=("%.1f" % d_eui_kbtu) + ' %', delta_color='inverse')
             st.metric('Predicted operational carbon (' + duration + ')', ("%.2f" % display_co2) + ' kgCO2', delta=("%.1f" % d_carbon) + ' %', delta_color='inverse')
             st.metric('Predicted  energy cost (' + duration + ')', '$' + ("%.2f" % display_cost), delta=("%.1f" % d_cost) + ' %', delta_color='inverse')  
         
