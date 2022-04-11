@@ -176,18 +176,18 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
         fig (Plotly figure): Scatterplot showing user-selected prediction data
     """
     if y_axis_data == 'Cost':
-        y_hover = 'USD'
+        hover = 'Cost: $%{y}'
     if y_axis_data == 'CO2':
-        y_hover = 'kgCO2'
+        hover = 'Carbon: %{y} kgCO2'
     if y_axis_data == 'EUI':
-        y_hover = y_axis_data
+        hover = 'EUI: %{y} kBTU/ft2'
         
     scatter = go.Scattergl(x=x, 
                         y=y,
                         marker_color=color,
                         text=color,
                         mode='markers',
-                        hovertemplate='%{y_hover}: %{y}',
+                        hovertemplate=hover,
                         # hovertext=y_hover,
                         # hoverinfo='text+y',
                         marker= {
