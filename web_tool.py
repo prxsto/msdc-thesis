@@ -191,8 +191,6 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
         x_axis_data = 'Infiltration rate (m3/s per m2 of facade)'
     if x_axis_data == 'Floor area':
         x_axis_data = 'Floor area (ft2)'
-    if x_axis_data == 'Lot type':
-        x_axis_data = 'Lot type \n (0=Corner with alley, 1=Corner without alley, 2=Infill with alley, 3=Infill without alley'
     
     # if x_axis_data == 'Lot type':
     #     bins = pd.interval_range(start=0, end=4)
