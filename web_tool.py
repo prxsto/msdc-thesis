@@ -335,7 +335,7 @@ def web_tool(model):
         surf_vol_ratio = surf_area / volume
         
         # show r-assembly value
-        st.text('R-assembly:', str(assembly_r), '(ft2·°F·h/BTU)') #TODO
+        st.text('R-assembly:' + str(assembly_r) + '(ft2·°F·h/BTU)') #TODO
         
         # submit user prediction
         pred_1, pred_2, pred3 = st.columns([1,1,1])
