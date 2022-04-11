@@ -176,11 +176,11 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
         fig (Plotly figure): Scatterplot showing user-selected prediction data
     """
     if y_axis_data == 'Cost':
-        hover = 'Cost: $%{y}'
+        hover = 'Cost: $%{y}<extra></extra>'
     if y_axis_data == 'CO2':
-        hover = 'Carbon: %{y} kgCO2'
+        hover = 'Carbon: %{y} kgCO2<extra></extra>'
     if y_axis_data == 'EUI':
-        hover = 'EUI: %{y} kBTU/ft2'
+        hover = 'EUI: %{y} kBTU/ft2<extra></extra>'
         
     scatter = go.Scattergl(x=x, 
                         y=y,
@@ -188,8 +188,6 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
                         text=color,
                         mode='markers',
                         hovertemplate=hover,
-                        # hovertext=y_hover,
-                        # hoverinfo='text+y',
                         marker= {
                             'size': 12,
                             'colorscale': 'Viridis',
@@ -462,8 +460,6 @@ def web_tool(model):
     with col2:    
         mesh = make_mesh.make_mesh(size, wwr, num_stories, num_units)
         st.plotly_chart(mesh, use_container_width=True)
-
-    # TODO allow hover to show design parameters if unable to set sliders and things to input values when result is selected
     
     with st.container():
         # st.subheader('Plot options:')
@@ -487,9 +483,6 @@ def web_tool(model):
                 x_axis_data,
                 y_axis_data
                 )
-            # fig.update_layout(
-            #     hoverdata=
-            # )
             st.plotly_chart(fig, use_container_width=True)
             
     if clear_res:
@@ -505,7 +498,8 @@ def web_tool(model):
         st.markdown('2. Choose "Predict" to view results and visualize simple model \n')
         st.markdown('3. Compare results using scatter plot below \n')
         st.markdown('4. Click "Download results" to download a spreadsheet containing all inputs and results \n \n')
-        st.markdown('Note: energy and kgCO2 values in downloadable spreadsheet are *annual*')
+        st.markdown('Note: energy and kgCO2 values in downloadable spreadsheet are *annual* \n \n')
+        st.markdown('Questions and feedback ')
             
 st.set_page_config(layout='wide')
 
