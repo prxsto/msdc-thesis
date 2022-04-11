@@ -175,13 +175,21 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
     Returns:
         fig (Plotly figure): Scatterplot showing user-selected prediction data
     """
+    if y_axis_data == 'Cost':
+        y_hover = 'USD'
+    if y_axis_data == 'CO2':
+        y_hover = 'kgCO2'
+    if y_axis_data == 'EUI':
+        y_hover = y_axis_data
+        
     scatter = go.Scattergl(x=x, 
                         y=y,
                         marker_color=color,
                         text=color,
                         mode='markers',
-                        hovertext=y_axis_data,
-                        hoverinfo='text+y',
+                        hovertemplate='%{y_hover}: %{y}',
+                        # hovertext=y_hover,
+                        # hoverinfo='text+y',
                         marker= {
                             'size': 12,
                             'colorscale': 'Viridis',
@@ -335,7 +343,7 @@ def web_tool(model):
         surf_vol_ratio = surf_area / volume
         
         # show r-assembly value
-        st.text('R-assembly:' + str(assembly_r) + '(ft2·°F·h/BTU)') #TODO
+        st.text('R-assembly: ' + str("%.2f" % assembly_r) + '(ft2·°F·h/BTU)')
         
         # submit user prediction
         pred_1, pred_2, pred3 = st.columns([1,1,1])
@@ -383,6 +391,7 @@ def web_tool(model):
                                 setback, assembly_r, surf_vol_ratio)
 
         eui = predict_eui(pred_input, model) / mshp_cop
+        
         # convert kBTU/ft2 to kWh/m2
         eui_kwh = eui * 3.2 
         # convert kBTU/ft2 to kWh, then multiply by CO2 equivalent of grid (Seattle)
