@@ -195,7 +195,7 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
     if x_axis_data == 'Lot type':
         x = x.to_frame()
         x.assign(site=pd.cut(x['site'],
-                             bins=[0, 1, 2, 3],
+                             bins=[0, 1, 2, 3, 4],
                              labels=['Corner/alley', 'Corner/no alley', 'Infill/alley', 'Infill/no alley']))
 
     if x_axis_data == 'Orientation':
