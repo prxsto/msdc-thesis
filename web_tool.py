@@ -288,7 +288,7 @@ def web_tool(model):
         typology = st.selectbox('DADU typology', ['1 unit, 1 story', '1 unit, 2 stories', 
                                         '2 units, 1 story'], index=0, 
                                         help='Select the number of stories and units')
-        inf_rate = infd[st.selectbox('Infiltration rate (cubic m/s?)', # double check units TODO 
+        inf_rate = infd[st.selectbox('Infiltration rate (m3/s per m2 of facade)', 
                                              ['Typical', 'Passive house'], 
                                              help='Select either standard infiltration rate or passive house (extremely tight enclosure)',
                                              index=0, key='inf')]
@@ -335,7 +335,7 @@ def web_tool(model):
         surf_vol_ratio = surf_area / volume
         
         # show r-assembly value
-        # st.write('R-assembly:', str(assembly_r), '(units)') #TODO
+        st.write('R-assembly:', str(assembly_r), '(ft2·°F·h/BTU)') #TODO
         
         # submit user prediction
         pred_1, pred_2, pred3 = st.columns([1,1,1])
