@@ -539,7 +539,7 @@ def web_tool(model):
         st.markdown('3. Compare results using scatter plot below \n')
         st.markdown('4. Click "Download results" to download a spreadsheet containing all inputs and results \n \n')
         st.markdown('Note: energy and kgCO2 values in downloadable spreadsheet are *annual* \n \n')
-        st.markdown('Questions or feedback? Open an 'issue' here https://github.com/prxsto/dadu-predictor')
+        st.markdown('Questions or feedback? Open an \'issue\' here https://github.com/prxsto/dadu-predictor')
             
 st.set_page_config(layout='wide')
 
