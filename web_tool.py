@@ -1,4 +1,5 @@
 import os
+from re import X
 import streamlit as st
 import pandas as pd
 import pickle
@@ -176,12 +177,50 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
         fig (Plotly figure): Scatterplot showing user-selected prediction data
     """
     if y_axis_data == 'Cost':
+        y_axis_data = 'Annual Cost ($)'
         hover = 'Cost: $%{y}<extra></extra>'
     if y_axis_data == 'CO2':
+        y_axis_data = 'Annual Carbon (kgCO2)'
         hover = 'Carbon: %{y} kgCO2<extra></extra>'
     if y_axis_data == 'EUI':
+        y_axis_data = 'EUI (kBTU/ft2)'
         hover = 'EUI: %{y} kBTU/ft2<extra></extra>'
-        
+    if x_axis_data == 'R-assembly':
+        x_axis_data = 'R-assembly (ft2·°F·h/BTU)'
+    if x_axis_data == 'Infiltration rate':
+        x_axis_data = 'Infiltration rate (m3/s per m2 of facade)'
+    if x_axis_data == 'Floor area':
+        x_axis_data = 'Floor area (ft2)'
+    
+    if x_axis_data == 'Lot type':
+        for i in x:
+            if i == 0:
+                i = 'Corner/alley'
+            if i == 1:
+                i = 'Corner/no alley'
+            if i == 2:
+                i = 'Infill/alley'
+            if i == 3:
+                i = 'Infill/no alley'
+
+    if x_axis_data == 'Orientation':
+        for i in x:
+            if i == 0:
+                i = 'N'
+            if i == 1:
+                i = 'S'
+            if i == 2:
+                i = 'E'
+            if i == 3:
+                i = 'W'
+
+    if x_axis_data == 'Setbacks':
+        for i in x:
+            if i == 0:
+                i = 'Existing'
+            if i == 1:
+                i = 'Proposed'
+                                
     scatter = go.Scattergl(x=x, 
                         y=y,
                         marker_color=color,
@@ -198,7 +237,8 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
     
     fig.update_xaxes(title_text=x_axis_data)
     fig.update_yaxes(title_text=y_axis_data)
-    
+    if x_axis_data == 'Lot type' or x_axis_data == 'Orientation' or x_axis_data == 'Setbacks':
+        fig.update_xaxes(type='category')
     fig.update_layout(hovermode='closest',
                         clickmode='event',
                         margin={'pad':10,
@@ -308,10 +348,10 @@ def web_tool(model):
                                                 key='setback')] 
         
         # sidebar sliders
-        size = st.slider('Total floor area (sqft)', 100, 1000,
+        size = st.slider('Total floor area (ft2)', 100, 1000,
                                 value=400, 
-                                help='Select the total square footage of floor (maximum floor area per Seattle code is 1000sqft)',
-                                step=10, key='sqft')
+                                help='Select the total square footage of floor (maximum floor area per Seattle code is 1000ft2)',
+                                step=10, key='ft2')
         wwr = st.slider('Window-to-wall ratio', 0.0, 0.9, 
                                 help='Window to wall ratio is the ratio between glazing (window) surface area and opaque surface area',
                                 value=.4, key='wwr')
@@ -436,7 +476,7 @@ def web_tool(model):
         if count == 1:
             display_co2 = round(float(rounded_co2 * duration_num), 2 )
             display_cost = round(float(rounded_cost * duration_num), 2)
-            st.metric('Predicted EUI (annual)', str(rounded_eui) + ' kBTU/sqft')
+            st.metric('Predicted EUI (annual)', str(rounded_eui) + ' kBTU/ft2')
             st.metric('Predicted operational carbon (' + duration + ')', str(display_co2) + ' kgCO2')
             st.metric('Predicted  energy cost (' + duration + ')', '$' + str(display_cost))  
             
@@ -452,7 +492,7 @@ def web_tool(model):
             d_cost = percent_change(
                 round(float(st.session_state.results.iat[count - 2, st.session_state.results.columns.get_loc('annual_cost')] * duration_num), 2), 
                 display_cost)
-            st.metric('Predicted EUI (annual)', ("%.2f" % rounded_eui) + ' kBTU/sqft', delta=("%.1f" % d_eui_kbtu) + ' %', delta_color='inverse')
+            st.metric('Predicted EUI (annual)', ("%.2f" % rounded_eui) + ' kBTU/ft2', delta=("%.1f" % d_eui_kbtu) + ' %', delta_color='inverse')
             st.metric('Predicted operational carbon (' + duration + ')', ("%.2f" % display_co2) + ' kgCO2', delta=("%.1f" % d_carbon) + ' %', delta_color='inverse')
             st.metric('Predicted  energy cost (' + duration + ')', '$' + ("%.2f" % display_cost), delta=("%.1f" % d_cost) + ' %', delta_color='inverse')  
         
@@ -499,7 +539,7 @@ def web_tool(model):
         st.markdown('3. Compare results using scatter plot below \n')
         st.markdown('4. Click "Download results" to download a spreadsheet containing all inputs and results \n \n')
         st.markdown('Note: energy and kgCO2 values in downloadable spreadsheet are *annual* \n \n')
-        st.markdown('Questions and feedback ')
+        st.markdown('Questions or feedback? Open an 'issue' here https://github.com/prxsto/dadu-predictor')
             
 st.set_page_config(layout='wide')
 
