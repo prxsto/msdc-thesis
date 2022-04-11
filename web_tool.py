@@ -526,7 +526,6 @@ def web_tool(model):
         st.dataframe(st.session_state.results)
         
     with st.expander('Documentation'):
-        st.markdown('Source code available here: https://github.com/prxsto/msdc-thesis \n \n')
         st.markdown('How to use: \n')
         st.markdown('1. Select design parameter values in the left sidebar \n')
         st.markdown('2. Choose "Predict" to view results and visualize simple model \n')
