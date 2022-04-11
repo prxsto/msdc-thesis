@@ -220,7 +220,7 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
                 i = 'Existing'
             if i == 1:
                 i = 'Proposed'
-    st.write(x_axis_data)                             
+    st.write(x)                             
     scatter = go.Scattergl(x=x, 
                         y=y,
                         marker_color=color,
