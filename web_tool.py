@@ -192,33 +192,28 @@ def plot_scatter(x, y, color, x_axis_data, y_axis_data):
     if x_axis_data == 'Floor area':
         x_axis_data = 'Floor area (ft2)'
     
-    if x_axis_data == 'Lot type':
-        bins = pd.interval_range(start=0, end=4)
-        d = dict(zip(bins, ['Corner/alley', 'Corner/no alley', 'Infill/alley', 'Infill/no alley']))
-        pd.cut(x, bins).map(d)
-        # x = x.to_frame()
-        # x.assign(site=pd.cut(x['site'],
-        #                      right=False,
-        #                      bins=[0, 1, 2, 3, 4],
-        #                      labels=['Corner/alley', 'Corner/no alley', 'Infill/alley', 'Infill/no alley']))
-        st.write(x)
-    if x_axis_data == 'Orientation':
-        for i in x:
-            if i == 0:
-                i = 'N'
-            if i == 1:
-                i = 'S'
-            if i == 2:
-                i = 'E'
-            if i == 3:
-                i = 'W'
+    # if x_axis_data == 'Lot type':
+    #     bins = pd.interval_range(start=0, end=4)
+    #     d = dict(zip(bins, ['Corner/alley', 'Corner/no alley', 'Infill/alley', 'Infill/no alley']))
+    #     pd.cut(x, bins).map(d)
+    #     st.write(x)
+    # if x_axis_data == 'Orientation':
+    #     for i in x:
+    #         if i == 0:
+    #             i = 'N'
+    #         if i == 1:
+    #             i = 'S'
+    #         if i == 2:
+    #             i = 'E'
+    #         if i == 3:
+    #             i = 'W'
 
-    if x_axis_data == 'Setbacks':
-        for i in x:
-            if i == 0:
-                i = 'Existing'
-            if i == 1:
-                i = 'Proposed'
+    # if x_axis_data == 'Setbacks':
+    #     for i in x:
+    #         if i == 0:
+    #             i = 'Existing'
+    #         if i == 1:
+    #             i = 'Proposed'
     st.write(x)
     st.write(type(x))                             
     scatter = go.Scattergl(x=x, 
