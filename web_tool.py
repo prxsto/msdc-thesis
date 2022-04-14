@@ -328,7 +328,7 @@ def web_tool(model):
         typology = st.selectbox('DADU typology', ['1 unit, 1 story', '1 unit, 2 stories', 
                                         '2 units, 1 story'], index=0, 
                                         help='Select the number of stories and units')
-        inf_rate = infd[st.selectbox('Infiltration rate (m3/s per m2 of facade)', 
+        inf_rate = infd[st.selectbox('Infiltration rate', 
                                              ['Typical', 'Passive house'], 
                                              help='Select either standard infiltration rate or passive house (extremely tight enclosure)',
                                              index=0, key='inf')]
@@ -529,7 +529,7 @@ def web_tool(model):
         st.markdown('How to use: \n')
         st.markdown('1. Select design parameter values in the left sidebar \n')
         st.markdown('2. Choose "Predict" to view results and visualize simple model \n')
-        st.markdown('3. Compare results using scatter plot below \n')
+        st.markdown('3. Compare results using scatter plot above \n')
         st.markdown('4. Click "Download results" to download a spreadsheet containing all inputs and results \n \n')
         st.markdown('Note: energy and kgCO2 values in downloadable spreadsheet are *annual* \n \n')
         st.markdown('Questions or feedback? Open an \'issue\' here https://github.com/prxsto/dadu-predictor')
