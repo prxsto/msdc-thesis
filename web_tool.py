@@ -25,9 +25,9 @@ setbackd = {
     'Proposed': 1
 }
 typologyd = {
-    '1 unit, 1 story': {'num_units': 1, 'num_stories': 1},
-    '1 unit, 2 stories': {'num_units': 1, 'num_stories': 2},
-    '2 units, 1 story': {'num_units': 2, 'num_stories': 1}
+    '1 zone, 1 story': {'num_units': 1, 'num_stories': 1},
+    '2 zones, 2 stories': {'num_units': 1, 'num_stories': 2},
+    '2 zones, 1 story': {'num_units': 2, 'num_stories': 1}
 }
 sited = {
     'Corner with alley':0,
@@ -325,9 +325,9 @@ def web_tool(model):
         site = st.selectbox('Lot type', options=['Corner with alley', 'Corner without alley', 
                                                      'Infill with alley', 'Infill without alley'], 
                                 index=3, help='Select the type of lot that your existing dwelling belongs to')
-        typology = st.selectbox('DADU typology', ['1 unit, 1 story', '1 unit, 2 stories', 
-                                        '2 units, 1 story'], index=0, 
-                                        help='Select the number of stories and units')
+        typology = st.selectbox('DADU typology', ['1 zone, 1 story', '2 zones, 2 stories', 
+                                        '2 zones, 1 story'], index=0, 
+                                        help='Select the number of stories and zones')
         inf_rate = infd[st.selectbox('Infiltration rate', 
                                              ['Typical', 'Passive house'], 
                                              help='Select either standard infiltration rate or passive house (extremely tight enclosure)',
