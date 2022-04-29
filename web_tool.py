@@ -25,9 +25,9 @@ setbackd = {
     'Proposed': 1
 }
 typologyd = {
-    '1 zone, 1 story': {'num_units': 1, 'num_stories': 1},
-    '2 zones, 2 stories': {'num_units': 1, 'num_stories': 2},
-    '2 zones, 1 story': {'num_units': 2, 'num_stories': 1}
+    '1 zone, 1 story': {'num_zones': 1, 'num_stories': 1},
+    '2 zones, 2 stories': {'num_zones': 1, 'num_stories': 2},
+    '2 zones, 1 story': {'num_zones': 2, 'num_stories': 1}
 }
 sited = {
     'Corner with alley':0,
@@ -92,7 +92,7 @@ def calc_r(polyiso_t, cellulose_t):
     
     return assembly_r
 
-def create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr, setback, assembly_r, surf_vol_ratio):
+def create_input_df(site, size, footprint, height, num_zones, inf_rate, orientation, wwr, setback, assembly_r, surf_vol_ratio):
     """
     Takes user input from Streamlit sliders and creates 1D dictionary from variables, then converts to DataFrame
 
@@ -101,8 +101,7 @@ def create_input_df(site, size, footprint, height, num_stories, num_units, inf_r
         size (int): total square footage of DADU
         footprint (int): first floor square footage of DADU; footprint == size for 1 story DADU
         height (int): height of DADU; 10 for 1 story, 20 for 2
-        num_stories (int): number of stories (1,2)
-        num_units (int): number of units (1,2); cannot have 2 units in 2 story DADU
+        num_zones (int): number of zones (1,2); cannot have 2 zones in 2 story DADU
         inf_rate (float): infiltration rate (standard or passive house)
         orientation (int): orientation of existing house to DADU (0,1,2,3; N,S,E,W)
         wwr (float): window-to-wall ratio (0.0<=1.0)
@@ -114,7 +113,7 @@ def create_input_df(site, size, footprint, height, num_stories, num_units, inf_r
         pred_input (DataFrame): dataframe of shape (1,15)
     """
     inputs = {
-        'site': [site], 'size': [size], 'footprint': [footprint], 'height': [height], 'num_stories': [num_stories], 'num_units': [num_units],
+        'site': [site], 'size': [size], 'footprint': [footprint], 'height': [height], 'num_zones': [num_zones],
         'inf_rate': [inf_rate], 'orientation': [orientation], 'wwr': [wwr], 'setback': [setback], 'assembly_r': [assembly_r], 
         'surf_vol_ratio': [surf_vol_ratio]
     }
@@ -359,7 +358,7 @@ def web_tool(model):
         site = sited[site]
 
         num_stories = typologyd[typology]['num_stories']
-        num_units = typologyd[typology]['num_units']
+        num_zones = typologyd[typology]['num_zones']
         if num_stories == 1:
             height = 10
             footprint = size
@@ -419,7 +418,7 @@ def web_tool(model):
     if activate:
         count = len(st.session_state.results.index) + 1
             
-        pred_input = create_input_df(site, size, footprint, height, num_stories, num_units, inf_rate, orientation, wwr,
+        pred_input = create_input_df(site, size, footprint, height, num_zones, inf_rate, orientation, wwr,
                                 setback, assembly_r, surf_vol_ratio)
 
         eui = predict_eui(pred_input, model) / mshp_cop
@@ -442,7 +441,7 @@ def web_tool(model):
             'footprint': footprint,
             'height': height,
             'num_stories': num_stories,
-            'num_units': num_units,
+            'num_zones': num_zones,
             'inf_rate': inf_rate,
             'orientation': orientation,
             'wwr': wwr,
@@ -492,7 +491,7 @@ def web_tool(model):
         
     # model viewer    
     with col2:    
-        mesh = make_mesh.make_mesh(size, wwr, num_stories, num_units)
+        mesh = make_mesh.make_mesh(size, wwr, num_stories, num_zones)
         st.plotly_chart(mesh, use_container_width=True)
     
     with st.container():

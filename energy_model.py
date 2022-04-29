@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.model_selection import RandomizedSearchCV
 from bayes_opt import BayesianOptimization
-import plotly as plt
+import matplotlib.pyplot as plt
 import plotly.express as px
 import numpy as np
 from tqdm import tqdm
@@ -18,7 +18,7 @@ def csv_to_df(path):
 
     df = pd.DataFrame()
     for f in tqdm(all_files):
-        row = pd.read_csv(f, sep=',', names=['filename', 'site', 'size', 'footprint', 'height', 'num_stories', 'num_units',
+        row = pd.read_csv(f, sep=',', names=['filename', 'site', 'size', 'footprint', 'height', 'num_stories', 'num_zones',
                                          'num_adiabatic', 'inf_rate', 'orientation', 'wwr', 'frame', 'polyiso_t', 'cellulose_t',
                                          'setback', 'rear_setback', 'side_setback', 'structure_setback', 'assembly_r',
                                          'area_buildable', 'surf_tot', 'surf_glaz', 'surf_opaq', 'volume', 'surf_vol_ratio', 'cooling',
@@ -56,7 +56,7 @@ def plot_prediction_analysis(y, y_pred):
 
 def prepare_data(df):
     data['surf_vol_ratio'] = data['surf_tot'] / data['volume']
-    labels_drop = ['filename', 'num_adiabatic', 'frame', 'polyiso_t', 'cellulose_t', 
+    labels_drop = ['filename', 'num_stories', 'num_adiabatic', 'frame', 'polyiso_t', 'cellulose_t', 
                    'rear_setback', 'side_setback', 'structure_setback', 'area_buildable',
                    'surf_tot', 'surf_glaz', 'surf_opaq', 'volume', 'cooling', 'heating', 
                    'lighting', 'equipment', 'water', 'eui_kwh', 'carbon', 'kg_CO2e']
@@ -181,8 +181,8 @@ if __name__ == '__main__':
     # data.to_csv('all_sims.csv')
     
     # read combined csv into df
-    data = pd.read_csv('all_sims.csv')
-    pickle_df(data)
+    # data = pd.read_csv('all_sims.csv')
+    # # pickle_df(data)
     # data.drop('Column1', axis=1, inplace=True)
     # prepared_data = prepare_data(data)
     
@@ -216,7 +216,8 @@ if __name__ == '__main__':
         
     # fig1 = plot_prediction_analysis(y_test, y_preds)
     # fig1.show
-    
-    # # XGB feature importance (F scores)
-    # fig2 = plot_feature_importance(model)
-    # fig2.show
+    pickle_in = open('xgboost_reg.pkl', 'rb')
+    model = pickle.load(pickle_in)
+    # XGB feature importance (F scores)
+    fig2 = plot_feature_importance(model)
+    fig2.show

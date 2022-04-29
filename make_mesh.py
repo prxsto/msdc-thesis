@@ -194,7 +194,7 @@ def make_window(pts, w, h, wwr, typology):
     if typology == 3:
         
         wall_area = w * h
-        glaz_area = wall_area * wwr / 2.
+        glaz_area = wall_area * wwr
         win_width = w * .95
         win_height = glaz_area / win_width
         h_gap = (w - win_width) / 2.
