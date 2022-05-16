@@ -54,9 +54,9 @@ def plot_prediction_analysis(y, y_pred):
     return fig
 
 
-def prepare_data(df):
+def prepare_data(data):
     data['surf_vol_ratio'] = data['surf_tot'] / data['volume']
-    labels_drop = ['filename', 'num_stories', 'num_adiabatic', 'frame', 'polyiso_t', 'cellulose_t', 
+    labels_drop = ['filename', 'footprint', 'height', 'num_adiabatic', 'frame', 'polyiso_t', 'cellulose_t', 
                    'rear_setback', 'side_setback', 'structure_setback', 'area_buildable',
                    'surf_tot', 'surf_glaz', 'surf_opaq', 'volume', 'cooling', 'heating', 
                    'lighting', 'equipment', 'water', 'eui_kwh', 'carbon', 'kg_CO2e']
@@ -181,43 +181,44 @@ if __name__ == '__main__':
     # data.to_csv('all_sims.csv')
     
     # read combined csv into df
-    # data = pd.read_csv('all_sims.csv')
+    data = pd.read_csv('all_sims.csv')
     # # pickle_df(data)
-    # data.drop('Column1', axis=1, inplace=True)
-    # prepared_data = prepare_data(data)
+    data.drop('Column1', axis=1, inplace=True)
+    print(data.columns)
+    prepared_data = prepare_data(data)
     
-    # model = xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_search=False, bay_opt=True)
+    model = xgboost_regression(prepared_data, loss='rmse', random_search=False, grid_search=False, bay_opt=True)
  
 
-    # X_train = prepared_data['X_train']
-    # X_test = prepared_data['X_test']
-    # y_train = prepared_data['y_train']
-    # y_test = prepared_data['y_test']
+    X_train = prepared_data['X_train']
+    X_test = prepared_data['X_test']
+    y_train = prepared_data['y_train']
+    y_test = prepared_data['y_test']
     
     # # print(X_train.columns)
-    # X_test_DM = xgb.DMatrix(X_test)
-    # y_preds = model.predict(X_test_DM)
+    X_test_DM = xgb.DMatrix(X_test)
+    y_preds = model.predict(X_test_DM)
     
-    # # SHAP plot
-    # explainer = shap.TreeExplainer(model)
-    # shap_values = explainer.shap_values(X_test)
+    # SHAP plot
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X_test)
     
-    # shap.summary_plot(shap_values, X_test)
+    shap.summary_plot(shap_values, X_test)
     
-    # # Plotly scatter y=x
-    # fig = px.scatter(x=y_test, y=y_preds, labels={
-    #                  'x': 'ground truth', 'y': 'prediction'})
-    # fig.add_shape(
-    #     type="line", line=dict(dash='dash'),
-    #     x0=y_test.min(), y0=y_test.min(),
-    #     x1=y_test.max(), y1=y_test.max())
-    # fig.show()
+    # Plotly scatter y=x
+    fig = px.scatter(x=y_test, y=y_preds, labels={
+                     'x': 'ground truth', 'y': 'prediction'})
+    fig.add_shape(
+        type="line", line=dict(dash='dash'),
+        x0=y_test.min(), y0=y_test.min(),
+        x1=y_test.max(), y1=y_test.max())
+    fig.show()
     
         
     # fig1 = plot_prediction_analysis(y_test, y_preds)
     # fig1.show
-    pickle_in = open('xgboost_reg.pkl', 'rb')
-    model = pickle.load(pickle_in)
+    # pickle_in = open('xgboost_reg.pkl', 'rb')
+    # model = pickle.load(pickle_in)
     # XGB feature importance (F scores)
     fig2 = plot_feature_importance(model)
     fig2.show

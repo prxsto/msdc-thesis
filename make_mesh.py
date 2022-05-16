@@ -285,9 +285,9 @@ def make_window(pts, w, h, wwr, typology):
         )
     return window_mesh, window_lines
 
-def make_mesh(footprint, wwr, num_stories, num_units):
+def make_mesh(footprint, wwr, num_stories, num_zones):
     
-    if num_stories == 1 and num_units == 1:
+    if num_stories == 1 and num_zones == 1:
         
         l = sqrt(footprint)
         w = sqrt(footprint)
@@ -362,7 +362,7 @@ def make_mesh(footprint, wwr, num_stories, num_units):
         )
         window_mesh, window_lines = make_window(pts, w, h, wwr, 1)
         
-    if num_stories == 2 and num_units == 1:
+    if num_stories == 2 and num_zones == 2:
         
         l = sqrt(footprint)
         w = sqrt(footprint)
@@ -440,7 +440,7 @@ def make_mesh(footprint, wwr, num_stories, num_units):
         )
         window_mesh, window_lines = make_window(pts, w, h, wwr, 2)
         
-    if num_stories == 1 and num_units == 2:
+    if num_stories == 1 and num_zones == 2:
         
         l = sqrt(footprint)
         w = sqrt(footprint)
@@ -558,5 +558,5 @@ def make_mesh(footprint, wwr, num_stories, num_units):
     return fig
  
 if __name__ == '__main__':
-    fig = make_mesh(footprint=400, wwr=0.4, num_stories=1, num_units=2)
+    fig = make_mesh(footprint=400, wwr=0.4, num_stories=1, num_zones=2)
     fig.show()

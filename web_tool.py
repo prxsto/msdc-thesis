@@ -25,9 +25,9 @@ setbackd = {
     'Proposed': 1
 }
 typologyd = {
-    '1 zone, 1 story': {'num_zones': 1, 'num_stories': 1},
-    '2 zones, 2 stories': {'num_zones': 1, 'num_stories': 2},
-    '2 zones, 1 story': {'num_zones': 2, 'num_stories': 1}
+    '1 story, 1 zone': {'num_zones': 1, 'num_stories': 1},
+    '1 story, 2 zones': {'num_zones': 2, 'num_stories': 1},
+    '2 stories, 2 zones': {'num_zones': 2, 'num_stories': 2}
 }
 sited = {
     'Corner with alley':0,
@@ -41,6 +41,8 @@ plotd = {
     'Orientation': 'orientation',
     'Setbacks': 'setback',
     'Floor area': 'size',
+    'Number of stories': 'num_stories',
+    'Number of zones': 'num_zones',
     'WWR': 'wwr',
     'R-assembly': 'assembly_r',
     'EUI': 'eui_kbtu',
@@ -61,7 +63,6 @@ def load_model():
     """ 
     Loads pickled xgboost model to predict EUI
     """
-    # os.chdir(r'/Users/prxsto/Documents/GitHub/msdc-thesis')
     pickle_in = open('xgboost_reg.pkl', 'rb')
     regressor = pickle.load(pickle_in)
     return regressor
@@ -92,7 +93,7 @@ def calc_r(polyiso_t, cellulose_t):
     
     return assembly_r
 
-def create_input_df(site, size, footprint, height, num_zones, inf_rate, orientation, wwr, setback, assembly_r, surf_vol_ratio):
+def create_input_df(site, size, num_stories, num_zones, inf_rate, orientation, wwr, setback, assembly_r, surf_vol_ratio):
     """
     Takes user input from Streamlit sliders and creates 1D dictionary from variables, then converts to DataFrame
 
@@ -113,7 +114,7 @@ def create_input_df(site, size, footprint, height, num_zones, inf_rate, orientat
         pred_input (DataFrame): dataframe of shape (1,15)
     """
     inputs = {
-        'site': [site], 'size': [size], 'footprint': [footprint], 'height': [height], 'num_zones': [num_zones],
+        'site': [site], 'size': [size], 'num_stories': [num_stories], 'num_zones': [num_zones],
         'inf_rate': [inf_rate], 'orientation': [orientation], 'wwr': [wwr], 'setback': [setback], 'assembly_r': [assembly_r], 
         'surf_vol_ratio': [surf_vol_ratio]
     }
@@ -308,8 +309,8 @@ def web_tool(model):
     count = len(st.session_state.results.index)
     
     # constants
-    kgCO2e = .135669
-    kwh_cost = .1189
+    kgCO2e = 0.096116
+    kwh_cost = 0.1189
     mshp_cop = 3.5 # average COP value of mini split heat pump systems in use in most DADUs in PNW
     
     if count >= 1:
@@ -324,8 +325,8 @@ def web_tool(model):
         site = st.selectbox('Lot type', options=['Corner with alley', 'Corner without alley', 
                                                      'Infill with alley', 'Infill without alley'], 
                                 index=3, help='Select the type of lot that your existing dwelling belongs to')
-        typology = st.selectbox('DADU typology', ['1 zone, 1 story', '2 zones, 2 stories', 
-                                        '2 zones, 1 story'], index=0, 
+        typology = st.selectbox('DADU typology', ['1 story, 1 zone', '1 story, 2 zones', 
+                                        '2 stories, 2 zones'], index=0, 
                                         help='Select the number of stories and zones')
         inf_rate = infd[st.selectbox('Infiltration rate', 
                                              ['Typical', 'Passive house'], 
@@ -418,7 +419,7 @@ def web_tool(model):
     if activate:
         count = len(st.session_state.results.index) + 1
             
-        pred_input = create_input_df(site, size, footprint, height, num_zones, inf_rate, orientation, wwr,
+        pred_input = create_input_df(site, size, num_stories, num_zones, inf_rate, orientation, wwr,
                                 setback, assembly_r, surf_vol_ratio)
 
         eui = predict_eui(pred_input, model) / mshp_cop
@@ -499,13 +500,15 @@ def web_tool(model):
         s_col1, s_col2, s_col3 = st.columns(3)
         with s_col1: 
             x_axis_data = st.selectbox('X-axis', options=['Lot type', 'Infiltration rate', 'Orientation',
-                                    'Setbacks', 'Floor area', 'WWR', 'R-assembly'], index=6, help='Select data feature to display on X axis')   
+                                    'Setbacks', 'Floor area', 'Number of stories', 'Number of zones', 'WWR', 'R-assembly'], 
+                                    index=6, help='Select data feature to display on X axis')   
         with s_col2:
             y_axis_data = st.selectbox('Y-axis', options=['EUI', 'CO2', 'Cost'], index=0, help='Select data feature to display on Y axis')
         
         with s_col3:
             colorby = st.selectbox('Color by', options=['Lot type', 'Infiltration rate', 'Orientation',
-                                    'Setbacks', 'Floor area', 'WWR', 'R-assembly'], help='Select data feature to color markers by')                    
+                                    'Setbacks', 'Floor area', 'Number of stories', 'Number of zones', 'WWR', 'R-assembly'], 
+                                   help='Select data feature to color markers by')                    
             
         if count > 0:
             
@@ -530,7 +533,7 @@ def web_tool(model):
         st.markdown('2. Choose "Predict" to view results and visualize simple model \n')
         st.markdown('3. Compare results using scatter plot above \n')
         st.markdown('4. Click "Download results" to download a spreadsheet containing all inputs and results \n \n')
-        st.markdown('Note: energy and kgCO2 values in downloadable spreadsheet are *annual* \n \n')
+        st.markdown('Note: energy and embodied carbon values in downloadable spreadsheet are *annual* \n \n')
         st.markdown('Questions or feedback? Open an \'issue\' here https://github.com/prxsto/dadu-predictor')
             
 st.set_page_config(layout='wide')
